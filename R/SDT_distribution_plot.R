@@ -113,7 +113,7 @@ SDT_distributions_plot <- function(model,
   mean_facet1_group2_signal <- b_signal + b_groupXsignal
 
   facet1_group2_plot <- SDT_dist_ggplot(ref_mean = mean_facet1_group2_noise, group_mean = mean_facet1_group2_signal, thresholds = thresholds_facet1_group2,
-                                        palette = palette, alpha = alpha, plot_limits = plot_limits, x_label = "Obs. signal")
+                                        palette = palette, alpha = alpha, plot_limits = plot_limits, ttl = group2_ttl, x_label = "Obs. signal")
 
   if (!is.null(var_facet)) {
 

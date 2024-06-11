@@ -90,8 +90,8 @@ bayesian_roc_ggplot_2_vars <- function(grid,
     pivot_wider(values_from = prob, names_from = !!sym(var_signal)) |>
     group_by(!!sym(var_group)) |>
     mutate(
-      Sensitivity = lag(rvar_cumsum(!!sym(levels(grid1[var_signal][1,])[1])), default = 0),
-      Specificity = rev(rvar_cumsum(rev(!!sym(levels(grid1[var_signal][1,])[2])))),
+      Sensitivity = lag(rvar_cumsum(!!sym(levels(grid[var_signal][1,])[1])), default = 0),
+      Specificity = rev(rvar_cumsum(rev(!!sym(levels(grid[var_signal][1,])[2])))),
       Threshold = paste0(lag(cut), "|", cut)
     )|>
     rows_append(data.frame(Sensitivity = 1, Specificity = 0)) |>
@@ -201,14 +201,14 @@ bayesian_roc_plot <- function(b_model,
   grid <- cbind(grid, probs_rvar_df)
 
   if (is.null(var_facet)) {
-
     out_plot <- bayesian_roc_ggplot_2_vars(grid, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette = palette, ttl = ttl)
+  }
 
-  } else if (!is.null(var_facet)) {
-    grid1 <- filter(grid, !!sym(var_facet) == levels(unique(grid[,"condition"]))[1]) |> select(-!!sym(var_facet))
+  if (!is.null(var_facet)) {
+    grid1 <- filter(grid, !!sym(var_facet) == levels(unique(grid[,var_facet]))[1]) |> select(-!!sym(var_facet))
     plot1 <- bayesian_roc_ggplot_2_vars(grid1, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette = palette, ttl = str_to_title(levels(unique(grid[,var_facet]))[1]))
 
-    grid2 <- filter(grid, !!sym(var_facet) == levels(unique(grid[,"condition"]))[2]) |> select(-!!sym(var_facet))
+    grid2 <- filter(grid, !!sym(var_facet) == levels(unique(grid[,var_facet]))[2]) |> select(-!!sym(var_facet))
     plot2 <- bayesian_roc_ggplot_2_vars(grid2, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette = palette, ttl = str_to_title(levels(unique(grid[,var_facet]))[2]))
 
     out_plot <- (plot1 + plot2) +
