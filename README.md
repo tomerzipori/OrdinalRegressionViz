@@ -20,7 +20,7 @@ remotes::install_github("tomerzipori/OrdinalRegressionViz")
 ### SDT Latent distributions
 
 <p align="center">
-  <img src="https://github.com/tomerzipori/OrdinalRegressionViz/blob/main/axelsson2024_roc_example.png" width="600">
+  <img src="https://github.com/tomerzipori/OrdinalRegressionViz/blob/main/example2_.png" width="600">
 </p>
 
 ### Bayesian random effects meta analysis
