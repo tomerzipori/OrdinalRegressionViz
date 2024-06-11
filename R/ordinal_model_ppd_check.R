@@ -22,7 +22,7 @@ ordinal_model_ppd_check <- function(b_model,
 
   model_data <- insight::get_data(b_model)
 
-  yrep <- posterior_predict(b_model, ndraws = 40, newdata = model_data, re_formula = NULL)
+  yrep <- posterior_predict(b_model, ndraws = 40, newdata = model_data, re_formula = NULL, allow_new_levels = T)
 
   y <- as.vector(as.numeric(model_data[,response]))
 
