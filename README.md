@@ -1,5 +1,7 @@
 # OrdinalRegressionViz
 
+![GitHub R package version](https://img.shields.io/github/r-package/v/tomerzipori/OrdinalRegressionViz)
+
 ## Overview
 OrdinalRegressionViz is a `ggplot2` based collection of a few functions for visualizing ordinal probit regression models. It also offers a function for visualizing Bayesian random effects meta-analyses with a forest plot.
 
