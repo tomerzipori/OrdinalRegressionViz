@@ -1,47 +1,3 @@
-#' Plot of latent normal distributions for two 2-level categorical variables ordinal probit regression models
-#'
-#' This function makes a latent distributions plot for two 2-level categorical variables ordinal regression models.
-#' @param ref_mean mean of the normal distribution representing "noise"
-#' @param group_mean mean of the normal distribution representing "noise + signal"
-#' @param thresholds numeric vector representing thresholds of the ordinal model
-#' @param palette integer representing a divergent palette in the scale_color_brewer function
-#' @param alpha opacity of lines representing thresholds
-#' @param plot_limits 2-integer vector representing x-axis limits of the plot
-#' @param ttl plot's title
-#' @param x_label label of the x axis
-#' @return a ggplot plot object
-#' @keywords internal
-SDT_dist_ggplot <- function(ref_mean = 0,
-                            group_mean = 1,
-                            thresholds,
-                            palette = 9,
-                            alpha = 0.7,
-                            plot_limits = c(-3, 5),
-                            ttl = "",
-                            x_label = "") {
-
-  ggplot() +
-
-    # Group1 + Noise
-    stat_function(aes(linetype = "True"), fun = dnorm,
-                  args = list(mean = ref_mean, sd = 1),
-                  linewidth = 1) +
-    # Group1 + Noise + Signal
-    stat_function(aes(linetype = "Fake"), fun = dnorm,
-                  args = list(mean = group_mean, sd = 1),
-                  linewidth = 1) +
-    # Thresholds
-    geom_vline(aes(xintercept = thresholds, color = names(thresholds)),
-               linewidth = 1.5, alpha = alpha) +
-    scale_color_brewer("Threshold", type = "div", palette = palette,
-                       labels = str_replace(names(thresholds), pattern = "\\|", replacement = " | ")) +
-    labs(y = NULL, linetype = NULL, x = x_label, title = ttl) +
-    expand_limits(x = plot_limits, y = 0.45) +
-    scale_x_continuous(breaks = seq(plot_limits[1], plot_limits[2], 1), labels = seq(plot_limits[1], plot_limits[2], 1)) +
-    theme_classic()
-}
-
-
 #' Latent normal distributions for two or three 2-level categorical predictor probit ordinal regression models
 #'
 #' This function makes a Latent normal distributions plot for two or three categorical variables ordinal regression models.
@@ -79,6 +35,7 @@ SDT_distributions_plot <- function(model,
                                    height = 1446) {
 
   model_data <- model$model
+  model_coef <- names(coef(model))
 
   library(ggplot2)
   library(patchwork)
@@ -86,14 +43,16 @@ SDT_distributions_plot <- function(model,
   thresholds <- coef(model)[as.numeric(min(model_data[response][,1])):as.numeric(max(model_data[response][,1]))-1]
   b_group <- coef(model)[paste0(var_group, levels(model_data[var_group][,1])[2])]
   b_signal <- coef(model)[paste0(var_signal, levels(model_data[var_signal][,1])[2])]
-  b_groupXsignal <- coef(model)[paste(paste0(var_group, levels(model_data[var_group][,1])[2]), paste0(var_signal, levels(model_data[var_signal][,1])[2]), sep = ":")]
+  b_groupXsignal <- ifelse(is.null(var_facet),
+                           model_coef[str_detect(model_coef, var_signal) & str_detect(model_coef, var_group)],
+                           model_coef[str_detect(model_coef, var_signal) & str_detect(model_coef, var_group) & str_detect(model_coef, var_facet, negate = T)])
 
   if (!is.null(var_facet)) {
 
     b_facet <- coef(model)[paste0(var_facet, levels(model_data[var_facet][,1])[2])]
-    b_groupXfacet <- coef(model)[paste(paste0(var_group, levels(model_data[var_group][,1])[2]), paste0(var_facet, levels(model_data[var_facet][,1])[2]), sep = ":")]
-    b_signalXfacet <- coef(model)[paste(paste0(var_signal, levels(model_data[var_signal][,1])[2]), paste0(var_facet, levels(model_data[var_facet][,1])[2]), sep = ":")]
-    b_groupXsignalXfacet <- coef(model)[paste(paste0(var_group, levels(model_data[var_group][,1])[2]), paste0(var_signal, levels(model_data[var_signal][,1])[2]), paste0(var_facet, levels(model_data[var_facet][,1])[2]), sep = ":")]
+    b_groupXfacet <- model_coef[str_detect(model_coef, var_group) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal, negate = T)]
+    b_signalXfacet <- model_coef[str_detect(model_coef, var_group, negate = T) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal)]
+    b_groupXsignalXfacet <- model_coef[str_detect(model_coef, var_group) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal)]
 
   }
 
