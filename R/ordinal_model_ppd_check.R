@@ -26,7 +26,9 @@ ordinal_model_ppd_check <- function(b_model,
 
   y <- as.vector(as.numeric(model_data[,response]))
 
-  g <- model_data[,c(2:vars+1)]
+  true_vars <- vars + 1
+
+  g <- model_data[,2:true_vars]
 
   out_plot <- ppc_bars_grouped(y, yrep, interaction(g, sep = ": "), facet_args = list(nrow = 4, ncol = 2)) +
     ggplot2::scale_x_continuous(breaks = min(y):max(y)) +
