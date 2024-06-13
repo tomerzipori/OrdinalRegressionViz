@@ -186,10 +186,14 @@ bayesian_distributions_plot_2_vars <- function(b_model,
                                                var_signal = "target",
                                                var_group = "time",
                                                response = "value",
+                                               group1_ttl = "",
+                                               group2_ttl = "",
                                                response_scale = c(1:7),
                                                palette = 9,
                                                plot_range = c(-11, 11),
                                                ttl = "") {
+
+  model_data <- b_model$data
 
   coefs <- tidybayes::get_variables(b_model)
   coefs <- coefs[stringr::str_detect(coefs, "b_")]
@@ -274,7 +278,7 @@ bayesian_distributions_plot_2_vars <- function(b_model,
     ggplot2::scale_fill_brewer("Threshold", type = "div", palette = 9,
                       labels = paste0(1:12, " | ", 2:13),
                       na.translate = FALSE) +
-    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = ttl, subtitle = "Pre-intervention") +
+    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = ttl, subtitle = ifelse(group1_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[1]), group1_ttl)) +
     ggplot2::scale_x_continuous(limits = plot_range, breaks = seq(plot_range[1], plot_range[2]), labels = seq(plot_range[1], plot_range[2])) +
     ggplot2::theme_classic() +
     ggplot2::theme(axis.text.y = ggplot2::element_blank(),
@@ -301,7 +305,7 @@ bayesian_distributions_plot_2_vars <- function(b_model,
     ggplot2::scale_fill_brewer("Threshold", type = "div", palette = 9,
                       labels = paste0(1:6, " | ", 2:7),
                       na.translate = FALSE) +
-    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = NULL, subtitle = "Post-intervention") +
+    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = NULL, subtitle = ifelse(group2_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[2]), group2_ttl)) +
     ggplot2::scale_x_continuous(limits = plot_range, breaks = seq(plot_range[1], plot_range[2]), labels = seq(plot_range[1], plot_range[2])) +
     ggplot2::theme_classic() +
     ggplot2::theme(axis.text.y = ggplot2::element_blank(),
@@ -331,6 +335,8 @@ bayesian_distributions_plot_3_vars <- function(b_model,
                                                var_group = "time",
                                                var_facet = "condition",
                                                response = "value",
+                                               group1_ttl = "",
+                                               group2_ttl = "",
                                                response_scale = c(1:7),
                                                palette = 9,
                                                plot_range = c(-11, 11),
@@ -520,7 +526,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
     ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette,
                       labels = paste0(1:12, " | ", 2:13),
                       na.translate = FALSE) +
-    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = stringr::str_to_title(levels(model_data[,var_facet])[1]), subtitle = "Pre-intervention") +
+    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = stringr::str_to_title(levels(model_data[,var_facet])[1]), subtitle = ifelse(group1_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[1]), group1_ttl)) +
     ggplot2::scale_x_continuous(limits = plot_range, breaks = seq(plot_range[1], plot_range[2]), labels = seq(plot_range[1], plot_range[2])) +
     ggplot2::theme_classic() +
     ggplot2::theme(axis.text.y = ggplot2::element_blank(),
@@ -547,7 +553,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
     ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette,
                       labels = paste0(1:6, " | ", 2:7),
                       na.translate = FALSE) +
-    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = NULL, subtitle = "Post-intervention") +
+    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = NULL, subtitle = ifelse(group2_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[2]), group2_ttl)) +
     ggplot2::scale_x_continuous(limits = plot_range, breaks = seq(plot_range[1], plot_range[2]), labels = seq(plot_range[1], plot_range[2])) +
     ggplot2::theme_classic() +
     ggplot2::theme(axis.text.y = ggplot2::element_blank(),
@@ -574,7 +580,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
     ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette,
                       labels = paste0(1:12, " | ", 2:13),
                       na.translate = FALSE) +
-    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = stringr::str_to_title(levels(model_data[,var_facet])[2]), subtitle = "Pre-intervention") +
+    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = stringr::str_to_title(levels(model_data[,var_facet])[2]), subtitle = ifelse(group1_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[1]), group1_ttl)) +
     ggplot2::scale_x_continuous(limits = plot_range, breaks = seq(plot_range[1], plot_range[2]), labels = seq(plot_range[1], plot_range[2])) +
     ggplot2::theme_classic() +
     ggplot2::theme(axis.text.y = ggplot2::element_blank(),
@@ -601,7 +607,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
     ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette,
                       labels = paste0(1:6, " | ", 2:7),
                       na.translate = FALSE) +
-    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = NULL, subtitle = "Post-intervention") +
+    ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = NULL, subtitle = ifelse(group2_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[2]), group2_ttl)) +
     ggplot2::scale_x_continuous(limits = plot_range, breaks = seq(plot_range[1], plot_range[2]), labels = seq(plot_range[1], plot_range[2])) +
     ggplot2::theme_classic() +
     ggplot2::theme(axis.text.y = ggplot2::element_blank(),
