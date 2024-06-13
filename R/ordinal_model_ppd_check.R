@@ -22,7 +22,7 @@ ordinal_model_ppd_check <- function(b_model,
 
   model_data <- insight::get_data(b_model)
 
-  yrep <- posterior_predict(b_model, ndraws = 40, newdata = model_data, re_formula = NULL, allow_new_levels = T)
+  yrep <- brms::posterior_predict(b_model, ndraws = 40, newdata = model_data, re_formula = NULL, allow_new_levels = T)
 
   y <- as.vector(as.numeric(model_data[,response]))
 
@@ -32,9 +32,9 @@ ordinal_model_ppd_check <- function(b_model,
 
   out_plot <- ppc_bars_grouped(y, yrep, interaction(g, sep = ": "), facet_args = list(nrow = 4, ncol = 2)) +
     ggplot2::scale_x_continuous(breaks = min(y):max(y)) +
-    labs(title = ttl) +
-    theme(plot.title = element_text(hjust = 0.5),
-          plot.background = element_rect(fill = "white"))
+    ggplot2::labs(title = ttl) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+          plot.background = ggplot2::element_rect(fill = "white"))
 
   if (!is.null(filename)) {
     ggplot2::ggsave(filename = filename, path = path, plot = out_plot, width = width, height = height, units = "px")

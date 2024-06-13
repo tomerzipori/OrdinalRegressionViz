@@ -46,8 +46,8 @@ roc_plot <- function(model,
     facet_levels <- levels(model$model[var_facet][1,])
     f <- formula(paste0("~ cut | ", var_group, " + ", var_facet, " + ", var_signal))
 
-    ems_sens_1 <- emmeans(model, f, at = list(target = signal_levels[1], condition = facet_levels[1]), mode = "cum.prob")
-    ems_spec_1 <- emmeans(model, f, at = list(target = signal_levels[2], condition = facet_levels[1]), mode = "exc.prob")
+    ems_sens_1 <- emmeans::emmeans(model, f, at = list(target = signal_levels[1], condition = facet_levels[1]), mode = "cum.prob")
+    ems_spec_1 <- emmeans::emmeans(model, f, at = list(target = signal_levels[2], condition = facet_levels[1]), mode = "exc.prob")
 
     plot1 <- roc_ggplot_2_vars(ems_sensitivity = ems_sens_1,
                                ems_specificity = ems_spec_1,
@@ -55,10 +55,10 @@ roc_plot <- function(model,
                                var_group = var_group,
                                response = response,
                                palette = palette,
-                               ttl = str_to_title(facet_levels[1]))
+                               ttl = stringr::str_to_title(facet_levels[1]))
 
-    ems_sens_2 <- emmeans(model, f, at = list(target = signal_levels[1], condition = facet_levels[2]), mode = "cum.prob")
-    ems_spec_2 <- emmeans(model, f, at = list(target = signal_levels[2], condition = facet_levels[2]), mode = "exc.prob")
+    ems_sens_2 <- emmeans::emmeans(model, f, at = list(target = signal_levels[1], condition = facet_levels[2]), mode = "cum.prob")
+    ems_spec_2 <- emmeans::emmeans(model, f, at = list(target = signal_levels[2], condition = facet_levels[2]), mode = "exc.prob")
 
     plot2 <- roc_ggplot_2_vars(ems_sensitivity = ems_sens_2,
                                ems_specificity = ems_spec_2,
@@ -66,11 +66,11 @@ roc_plot <- function(model,
                                var_group = var_group,
                                response = response,
                                palette = palette,
-                               ttl = str_to_title(facet_levels[2]))
+                               ttl = stringr::str_to_title(facet_levels[2]))
 
     out_plot <- (plot1 + plot2) +
-      plot_layout(guides = "collect") +
-      plot_annotation(title = ttl, theme = theme(plot.title = element_text(size = 20, family = "serif", hjust = 0.5)))
+      patchwork::plot_layout(guides = "collect") +
+      patchwork::plot_annotation(title = ttl, theme = ggplot2::theme(plot.title = ggplot2::element_text(size = 20, family = "serif", hjust = 0.5)))
 
   }
 

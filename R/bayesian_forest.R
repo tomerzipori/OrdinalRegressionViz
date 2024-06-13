@@ -24,67 +24,67 @@ bayesian_forest <- function(b_meta_analysis,
                             width = 2450,
                             height = 1446) {
 
-  meta_draws <- spread_draws(b_meta_analysis, r_Author[Author,], b_Intercept)
+  meta_draws <- tidybayes::spread_draws(b_meta_analysis, r_Author[Author,], b_Intercept)
 
-  meta_draws_nested <- spread_draws(b_meta_analysis, (!!sym('r_Author:Study'))[Author_id,]) |>
+  meta_draws_nested <- tidybayes::spread_draws(b_meta_analysis, (!!dplyr::sym('r_Author:Study'))[Author_id,]) |>
     tidyr::separate(Author_id, into = c('Author', 'Study'), sep = "_")
 
   meta_combined <- meta_draws_nested |>
-    left_join(meta_draws, by = c('.draw', 'Author')) |>
-    mutate(b_Intercept = b_Intercept + r_Author + !!sym('r_Author:Study'))
+    dplyr::left_join(meta_draws, by = c('.draw', 'Author')) |>
+    dplyr::mutate(b_Intercept = b_Intercept + r_Author + !!dplyr::sym('r_Author:Study'))
 
-  pooled_effect_draws <- spread_draws(b_meta_analysis, b_Intercept) |>
-    mutate(Author = "Pooled Effect")
+  pooled_effect_draws <- tidybayes::spread_draws(b_meta_analysis, b_Intercept) |>
+    dplyr::mutate(Author = "Pooled Effect")
 
-  forest_data <- bind_rows(meta_combined, pooled_effect_draws) |>
-    ungroup() |>
-    mutate(Author = str_squish(str_replace_all(Author, "[.]", " ")),
-           Study = str_squish(str_replace_all(Study, "[.]", " "))) |>
-    unite("Study", Author:Study, sep = " - ", remove = FALSE) |>
-    mutate(Study = reorder(Study, b_Intercept)) |>
-    mutate(Study = factor(case_match(Study, "Pooled Effect - NA" ~ "Pooled Effect",
+  forest_data <- dplyr::bind_rows(meta_combined, pooled_effect_draws) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(Author = stringr::str_squish(stringr::str_replace_all(Author, "[.]", " ")),
+           Study = stringr::str_squish(stringr::str_replace_all(Study, "[.]", " "))) |>
+    tidyr::unite("Study", Author:Study, sep = " - ", remove = FALSE) |>
+    dplyr::mutate(Study = reorder(Study, b_Intercept)) |>
+    dplyr::mutate(Study = factor(dplyr::case_match(Study, "Pooled Effect - NA" ~ "Pooled Effect",
                                      .default = Study)))
 
-  forest_data_summary <- group_by(forest_data, Study) |>
-    mean_qi(b_Intercept) |>
-    arrange(b_Intercept)
+  forest_data_summary <- dplyr::group_by(forest_data, Study) |>
+    tidybayes::mean_qi(b_Intercept) |>
+    dplyr::arrange(b_Intercept)
 
-  color_vec <- colorRampPalette(RColorBrewer::brewer.pal(palette, "Spectral"))(length(unique(forest_data$Author)))
+  color_vec <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(palette, "Spectral"))(length(unique(forest_data$Author)))
 
-  out_plot <- ggplot(aes(x = b_Intercept, y = relevel(Study, "Pooled Effect", after = Inf)),
+  out_plot <- ggplot2::ggplot(ggplot2::aes(x = b_Intercept, y = relevel(Study, "Pooled Effect", after = Inf)),
                      data = forest_data) +
 
     # Add vertical lines for pooled effect and CI
-    geom_vline(xintercept = fixef(b_meta_analysis)[1, 1],
+    ggplot2::geom_vline(xintercept = brms::fixef(b_meta_analysis)[1, 1],
                color = "grey", linewidth = 1) +
-    geom_vline(xintercept = fixef(b_meta_analysis)[1, 3:4],
+    ggplot2::geom_vline(xintercept = brms::fixef(b_meta_analysis)[1, 3:4],
                color = "grey", linetype = 2) +
-    geom_vline(xintercept = 0, color = "black",
+    ggplot2::geom_vline(xintercept = 0, color = "black",
                linewidth = 1) +
 
     # Add densities
-    ggridges::geom_density_ridges(aes(fill = Author),
+    ggridges::geom_density_ridges(ggplot2::aes(fill = Author),
                                   rel_min_height = 0.01,
                                   col = "gray40", scale = 1,
                                   alpha = 0.8,
                                   show.legend = F) +
-    geom_pointinterval(aes(xmin = .lower, xmax = .upper), data = forest_data_summary,
+    tidybayes::geom_pointinterval(ggplot2::aes(xmin = .lower, xmax = .upper), data = forest_data_summary,
                        size = 1) +
 
-    scale_fill_manual(values = color_vec) +
+    ggplot2::scale_fill_manual(values = color_vec) +
 
     # Add text and labels
-    geom_text(data = mutate_if(forest_data_summary,
+    ggplot2::geom_text(data = dplyr::mutate_if(forest_data_summary,
                                is.numeric, round, 2),
-              aes(label = glue("{b_Intercept} [{.lower}, {.upper}]"),
+              ggplot2::aes(label = glue::glue("{b_Intercept} [{.lower}, {.upper}]"),
                   x = Inf), hjust = "inward", size = 3.5) +
-    labs(x = "Standardized Mean Difference", # summary measure
-         y = element_blank(),
+    ggplot2::labs(x = "Standardized Mean Difference", # summary measure
+         y = ggplot2::element_blank(),
          title = ttl,
          subtitle = "Studies are color-coded") +
-    theme_classic() +
-    theme(plot.title = element_text(size = 16, family = "serif", hjust = hjust_ttl),
-          plot.subtitle = element_text(size = 11, family = "serif", hjust = 0.32))
+    ggplot2::theme_classic() +
+    ggplot2::theme(plot.title = ggplot2::element_text(size = 16, family = "serif", hjust = hjust_ttl),
+          plot.subtitle = ggplot2::element_text(size = 11, family = "serif", hjust = 0.32))
 
   if (!is.null(filename)) {
     ggplot2::ggsave(filename = filename, path = path, plot = out_plot, width = width, height = height, units = "px")

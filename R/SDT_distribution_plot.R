@@ -41,15 +41,15 @@ SDT_distributions_plot <- function(model,
   b_group <- coef(model)[paste0(var_group, levels(model_data[var_group][,1])[2])]
   b_signal <- coef(model)[paste0(var_signal, levels(model_data[var_signal][,1])[2])]
   b_groupXsignal <- ifelse(is.null(var_facet),
-                           coef(model)[model_coef[str_detect(model_coef, var_signal) & str_detect(model_coef, var_group)]],
-                           coef(model)[model_coef[str_detect(model_coef, var_signal) & str_detect(model_coef, var_group) & str_detect(model_coef, var_facet, negate = T)]])
+                           coef(model)[model_coef[stringr::str_detect(model_coef, var_signal) & stringr::str_detect(model_coef, var_group)]],
+                           coef(model)[model_coef[stringr::str_detect(model_coef, var_signal) & stringr::str_detect(model_coef, var_group) & stringr::str_detect(model_coef, var_facet, negate = T)]])
 
   if (!is.null(var_facet)) {
 
     b_facet <- coef(model)[paste0(var_facet, levels(model_data[var_facet][,1])[2])]
-    b_groupXfacet <- coef(model)[model_coef[str_detect(model_coef, var_group) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal, negate = T)]]
-    b_signalXfacet <- coef(model)[model_coef[str_detect(model_coef, var_group, negate = T) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal)]]
-    b_groupXsignalXfacet <- coef(model)[model_coef[str_detect(model_coef, var_group) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal)]]
+    b_groupXfacet <- coef(model)[model_coef[stringr::str_detect(model_coef, var_group) & stringr::str_detect(model_coef, var_facet) & stringr::str_detect(model_coef, var_signal, negate = T)]]
+    b_signalXfacet <- coef(model)[model_coef[stringr::str_detect(model_coef, var_group, negate = T) & stringr::str_detect(model_coef, var_facet) & stringr::str_detect(model_coef, var_signal)]]
+    b_groupXsignalXfacet <- coef(model)[model_coef[stringr::str_detect(model_coef, var_group) & stringr::str_detect(model_coef, var_facet) & stringr::str_detect(model_coef, var_signal)]]
 
   }
 
@@ -90,18 +90,18 @@ SDT_distributions_plot <- function(model,
     facet2_group2_plot <- SDT_dist_ggplot(ref_mean = mean_facet2_group2_noise, group_mean = mean_facet2_group2_signal, thresholds = thresholds_facet2_group2,
                                           palette = palette, alpha = alpha, plot_limits = plot_limits, x_label = "Obs. signal")
 
-    row_label_1 <- wrap_elements(panel = ggpubr::text_grob(str_to_title(levels(model_data[var_facet][,1])[1]), face = "bold", family = "serif"))
-    row_label_2 <- wrap_elements(panel = ggpubr::text_grob(str_to_title(levels(model_data[var_facet][,1])[2]), face = "bold", family = "serif"))
+    row_label_1 <- patchwork::wrap_elements(panel = ggpubr::text_grob(stringr::str_to_title(levels(model_data[var_facet][,1])[1]), face = "bold", family = "serif"))
+    row_label_2 <- patchwork::wrap_elements(panel = ggpubr::text_grob(stringr::str_to_title(levels(model_data[var_facet][,1])[2]), face = "bold", family = "serif"))
 
     out_plot <- (row_label_1 / (facet1_group1_plot | facet1_group2_plot) / row_label_2 / (facet2_group1_plot | facet2_group2_plot)) +
-      plot_layout(guides = "collect", heights = c(.17,1,.17,1), nrow = 4) +
-      plot_annotation(title = ttl, theme = theme(plot.title = element_text(size = 19, hjust = 0.5, family = "serif")))
+      patchwork::plot_layout(guides = "collect", heights = c(.17,1,.17,1), nrow = 4) +
+      patchwork::plot_annotation(title = ttl, theme = ggplot2::theme(plot.title = ggplot2::element_text(size = 19, hjust = 0.5, family = "serif")))
 
   } else if (is.null(var_facet)) {
 
     out_plot <- (facet1_group1_plot / facet1_group2_plot) +
-      plot_layout(guides = "collect") +
-      plot_annotation(title = ttl, theme = theme(plot.title = element_text(family = "serif", size = 20, hjust = .5)))
+      patchwork::plot_layout(guides = "collect") +
+      patchwork::plot_annotation(title = ttl, theme = ggplot2::theme(plot.title = ggplot2::element_text(family = "serif", size = 20, hjust = .5)))
 
   }
 

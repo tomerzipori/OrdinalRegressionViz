@@ -40,11 +40,11 @@ bayesian_roc_plot <- function(b_model,
   }
 
   if (!is.null(var_facet)) {
-    grid1 <- filter(grid, !!sym(var_facet) == levels(unique(grid[,var_facet]))[1]) |> select(-!!sym(var_facet))
-    plot1 <- bayesian_roc_ggplot_2_vars(grid1, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette = palette, ttl = str_to_title(levels(unique(grid[,var_facet]))[1]))
+    grid1 <- dplyr::filter(grid, !!dplyr::sym(var_facet) == levels(unique(grid[,var_facet]))[1]) |> dplyr::select(-!!dplyr::sym(var_facet))
+    plot1 <- bayesian_roc_ggplot_2_vars(grid1, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette = palette, ttl = stringr::str_to_title(levels(unique(grid[,var_facet]))[1]))
 
-    grid2 <- filter(grid, !!sym(var_facet) == levels(unique(grid[,var_facet]))[2]) |> select(-!!sym(var_facet))
-    plot2 <- bayesian_roc_ggplot_2_vars(grid2, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette = palette, ttl = str_to_title(levels(unique(grid[,var_facet]))[2]))
+    grid2 <- dplyr::filter(grid, !!dplyr::sym(var_facet) == levels(unique(grid[,var_facet]))[2]) |> dplyr::select(-!!dplyr::sym(var_facet))
+    plot2 <- bayesian_roc_ggplot_2_vars(grid2, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette = palette, ttl = stringr::str_to_title(levels(unique(grid[,var_facet]))[2]))
 
     out_plot <- (plot1 + plot2) +
       patchwork::plot_layout(guides = "collect") +

@@ -6,21 +6,21 @@ Author: Tomer Zipori
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-Imports: 
-    ordinal,
-    emmeans,
-    patchwork,
-    parameters,
-    brms,
-    tidybayes,
-    posterior,
+Imports:
     bayesplot,
+    brms,
+    dplyr,
+    emmeans,
     ggnewscale,
     ggplot2,
+    ordinal,
+    parameters,
+    patchwork,
+    posterior,
     readr,
-    dplyr,
-    tidyr,
-    stringr
+    stringr,
+    tidybayes,
+    tidyr
 License: MIT
 Encoding: UTF-8
 LazyData: true
