@@ -46,8 +46,14 @@ roc_plot <- function(model,
     facet_levels <- levels(model$model[var_facet][1,])
     f <- formula(paste0("~ cut | ", var_group, " + ", var_facet, " + ", var_signal))
 
-    ems_sens_1 <- emmeans::emmeans(model, f, at = list(target = signal_levels[1], condition = facet_levels[1]), mode = "cum.prob")
-    ems_spec_1 <- emmeans::emmeans(model, f, at = list(target = signal_levels[2], condition = facet_levels[1]), mode = "exc.prob")
+    at_list_sens_1 <- list(target = signal_levels[1], condition = facet_levels[1])
+    at_list_spec_1 <- list(target = signal_levels[2], condition = facet_levels[1])
+
+    names(at_list_sens_1) <- c(var_signal, var_facet)
+    names(at_list_spec_1) <- c(var_signal, var_facet)
+
+    ems_sens_1 <- emmeans::emmeans(model, f, at = at_list_sens_1, mode = "cum.prob")
+    ems_spec_1 <- emmeans::emmeans(model, f, at = at_list_spec_1, mode = "exc.prob")
 
     plot1 <- roc_ggplot_2_vars(ems_sensitivity = ems_sens_1,
                                ems_specificity = ems_spec_1,
@@ -57,8 +63,14 @@ roc_plot <- function(model,
                                palette = palette,
                                ttl = stringr::str_to_title(facet_levels[1]))
 
-    ems_sens_2 <- emmeans::emmeans(model, f, at = list(target = signal_levels[1], condition = facet_levels[2]), mode = "cum.prob")
-    ems_spec_2 <- emmeans::emmeans(model, f, at = list(target = signal_levels[2], condition = facet_levels[2]), mode = "exc.prob")
+    at_list_sens_2 <- list(target = signal_levels[1], condition = facet_levels[2])
+    at_list_spec_2 <- list(target = signal_levels[2], condition = facet_levels[2])
+
+    names(at_list_sens_2) <- c(var_signal, var_facet)
+    names(at_list_spec_2) <- c(var_signal, var_facet)
+
+    ems_sens_2 <- emmeans::emmeans(model, f, at = at_list_sens_2, mode = "cum.prob")
+    ems_spec_2 <- emmeans::emmeans(model, f, at = at_list_spec_2, mode = "exc.prob")
 
     plot2 <- roc_ggplot_2_vars(ems_sensitivity = ems_sens_2,
                                ems_specificity = ems_spec_2,
