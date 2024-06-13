@@ -1,6 +1,6 @@
 .onAttach <- function(...) {
   phrase <- random_phrase()
-  packageStartupMessage(paste(strwrap(phrase), collapse = "\n"))
+  packageStartupMessage(paste(strwrap(phrase), "But seriously, this small package is an experiment by me and therefore probably full of bugs" collapse = "\n"))
 }
 
 
