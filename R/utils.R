@@ -125,6 +125,8 @@ bayesian_roc_ggplot_2_vars <- function(grid,
     Specificity = rep(1:0, times = 2)
   )
 
+  names(edges)[1] <- var_group
+
   roc_data_grid <- grid_long_Sensitivity |>
     full_join(grid_long_Specificity, by = join_by(Threshold, !!sym(var_group))) |>
     rows_append(edges) |>
@@ -241,8 +243,8 @@ bayesian_distributions_plot_2_vars <- function(b_model,
     rename(b_timepostXtargetfake = !!sym(coef_interaction[1]),
            b_disc_timepostXtargetfake = !!sym(coef_interaction[2])) |>
     mutate(b_disc_Intercept = 1/exp(b_disc_Intercept),
-           b_disc_timepost = 1/exp(b_disc_timepost),
-           b_disc_targetfake = 1/exp(b_disc_targetfake),
+           b_disc_timepost = 1/exp(!!sym(coef_group[2])),
+           b_disc_targetfake = 1/exp(!!sym(coef_signal[2])),
            b_disc_timepostXtargetfake = 1/exp(b_disc_timepostXtargetfake)) |>
     group_by(.draw) |>
     reframe(

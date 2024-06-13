@@ -37,22 +37,19 @@ SDT_distributions_plot <- function(model,
   model_data <- model$model
   model_coef <- names(coef(model))
 
-  library(ggplot2)
-  library(patchwork)
-
   thresholds <- coef(model)[as.numeric(min(model_data[response][,1])):as.numeric(max(model_data[response][,1]))-1]
   b_group <- coef(model)[paste0(var_group, levels(model_data[var_group][,1])[2])]
   b_signal <- coef(model)[paste0(var_signal, levels(model_data[var_signal][,1])[2])]
   b_groupXsignal <- ifelse(is.null(var_facet),
-                           model_coef[str_detect(model_coef, var_signal) & str_detect(model_coef, var_group)],
-                           model_coef[str_detect(model_coef, var_signal) & str_detect(model_coef, var_group) & str_detect(model_coef, var_facet, negate = T)])
+                           coef(model)[model_coef[str_detect(model_coef, var_signal) & str_detect(model_coef, var_group)]],
+                           coef(model)[model_coef[str_detect(model_coef, var_signal) & str_detect(model_coef, var_group) & str_detect(model_coef, var_facet, negate = T)]])
 
   if (!is.null(var_facet)) {
 
     b_facet <- coef(model)[paste0(var_facet, levels(model_data[var_facet][,1])[2])]
-    b_groupXfacet <- model_coef[str_detect(model_coef, var_group) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal, negate = T)]
-    b_signalXfacet <- model_coef[str_detect(model_coef, var_group, negate = T) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal)]
-    b_groupXsignalXfacet <- model_coef[str_detect(model_coef, var_group) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal)]
+    b_groupXfacet <- coef(model)[model_coef[str_detect(model_coef, var_group) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal, negate = T)]]
+    b_signalXfacet <- coef(model)[model_coef[str_detect(model_coef, var_group, negate = T) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal)]]
+    b_groupXsignalXfacet <- coef(model)[model_coef[str_detect(model_coef, var_group) & str_detect(model_coef, var_facet) & str_detect(model_coef, var_signal)]]
 
   }
 
