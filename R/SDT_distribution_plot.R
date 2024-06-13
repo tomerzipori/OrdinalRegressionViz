@@ -37,7 +37,7 @@ SDT_distributions_plot <- function(model,
   model_data <- model$model
   model_coef <- names(coef(model))
 
-  thresholds <- coef(model)[as.numeric(min(model_data[response][,1])):as.numeric(max(model_data[response][,1]))-1]
+  thresholds <- coef(model)[1:max(as.numeric(model_data[response][,1]))-1]
   b_group <- coef(model)[paste0(var_group, levels(model_data[var_group][,1])[2])]
   b_signal <- coef(model)[paste0(var_signal, levels(model_data[var_signal][,1])[2])]
   b_groupXsignal <- ifelse(is.null(var_facet),
@@ -61,7 +61,11 @@ SDT_distributions_plot <- function(model,
   mean_facet1_group1_signal <- b_signal
 
   facet1_group1_plot <- SDT_dist_ggplot(ref_mean = mean_facet1_group1_noise, group_mean = mean_facet1_group1_signal, thresholds = thresholds_facet1_group1,
-                                        palette = palette, alpha = alpha, plot_limits = plot_limits, ttl = group1_ttl, x_label = "Obs. signal")
+                                        palette = palette, alpha = alpha, plot_limits = plot_limits,
+                                        ttl = ifelse(group1_ttl == "",
+                                                     stringr::str_to_title(levels(model_data[var_group][,1]))[1],
+                                                     group1_ttl),
+                                        x_label = "Obs. signal")
 
   ### group2
   thresholds_facet1_group2 <- thresholds - b_group
@@ -69,7 +73,11 @@ SDT_distributions_plot <- function(model,
   mean_facet1_group2_signal <- b_signal + b_groupXsignal
 
   facet1_group2_plot <- SDT_dist_ggplot(ref_mean = mean_facet1_group2_noise, group_mean = mean_facet1_group2_signal, thresholds = thresholds_facet1_group2,
-                                        palette = palette, alpha = alpha, plot_limits = plot_limits, ttl = group2_ttl, x_label = "Obs. signal")
+                                        palette = palette, alpha = alpha, plot_limits = plot_limits,
+                                        ttl = ifelse(group2_ttl == "",
+                                                     stringr::str_to_title(levels(model_data[var_group][,1]))[2],
+                                                     group2_ttl),
+                                        x_label = "Obs. signal")
 
   if (!is.null(var_facet)) {
 
@@ -80,7 +88,11 @@ SDT_distributions_plot <- function(model,
     mean_facet2_group1_signal <- b_signal + b_signalXfacet
 
     facet2_group1_plot <- SDT_dist_ggplot(ref_mean = mean_facet2_group1_noise, group_mean = mean_facet2_group1_signal, thresholds = thresholds_facet2_group1,
-                                          palette = palette, alpha = alpha, plot_limits = plot_limits, ttl = group1_ttl, x_label = "Obs. signal")
+                                          palette = palette, alpha = alpha, plot_limits = plot_limits,
+                                          ttl = ifelse(group1_ttl == "",
+                                                       stringr::str_to_title(levels(model_data[var_group][,1]))[1],
+                                                       group1_ttl),
+                                          x_label = "Obs. signal")
 
     ### group2
     thresholds_facet2_group2 <- thresholds - b_facet - b_group - b_groupXfacet
@@ -88,7 +100,11 @@ SDT_distributions_plot <- function(model,
     mean_facet2_group2_signal <- b_signal + b_groupXsignal + b_signalXfacet + b_groupXsignalXfacet
 
     facet2_group2_plot <- SDT_dist_ggplot(ref_mean = mean_facet2_group2_noise, group_mean = mean_facet2_group2_signal, thresholds = thresholds_facet2_group2,
-                                          palette = palette, alpha = alpha, plot_limits = plot_limits, ttl = group2_ttl, x_label = "Obs. signal")
+                                          palette = palette, alpha = alpha, plot_limits = plot_limits,
+                                          ttl = ifelse(group2_ttl == "",
+                                                       stringr::str_to_title(levels(model_data[var_group][,1]))[2],
+                                                       group2_ttl),
+                                          x_label = "Obs. signal")
 
     row_label_1 <- patchwork::wrap_elements(panel = ggpubr::text_grob(stringr::str_to_title(levels(model_data[var_facet][,1])[1]), face = "bold", family = "serif"))
     row_label_2 <- patchwork::wrap_elements(panel = ggpubr::text_grob(stringr::str_to_title(levels(model_data[var_facet][,1])[2]), face = "bold", family = "serif"))
