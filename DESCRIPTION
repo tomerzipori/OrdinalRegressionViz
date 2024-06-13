@@ -14,10 +14,8 @@ Imports:
     ggnewscale,
     ggplot2,
     ordinal,
-    parameters,
     patchwork,
     posterior,
-    readr,
     stringr,
     tidybayes,
     tidyr
