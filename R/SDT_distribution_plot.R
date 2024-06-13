@@ -88,7 +88,7 @@ SDT_distributions_plot <- function(model,
     mean_facet2_group2_signal <- b_signal + b_groupXsignal + b_signalXfacet + b_groupXsignalXfacet
 
     facet2_group2_plot <- SDT_dist_ggplot(ref_mean = mean_facet2_group2_noise, group_mean = mean_facet2_group2_signal, thresholds = thresholds_facet2_group2,
-                                          palette = palette, alpha = alpha, plot_limits = plot_limits, x_label = "Obs. signal")
+                                          palette = palette, alpha = alpha, plot_limits = plot_limits, ttl = group2_ttl, x_label = "Obs. signal")
 
     row_label_1 <- patchwork::wrap_elements(panel = ggpubr::text_grob(stringr::str_to_title(levels(model_data[var_facet][,1])[1]), face = "bold", family = "serif"))
     row_label_2 <- patchwork::wrap_elements(panel = ggpubr::text_grob(stringr::str_to_title(levels(model_data[var_facet][,1])[2]), face = "bold", family = "serif"))
