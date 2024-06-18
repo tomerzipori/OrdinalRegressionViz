@@ -31,8 +31,15 @@ roc_plot <- function(model,
   if (is.null(var_facet)) {
 
     f <- formula(paste0("~ cut | ", var_group, " + ", var_signal))
-    ems_sens <- emmeans::emmeans(model, f, at = list(target = signal_levels[1]), mode = "cum.prob")
-    ems_spec <- emmeans::emmeans(model, f, at = list(target = signal_levels[2]), mode = "exc.prob")
+
+    at_list_sens <- list(target = signal_levels[1])
+    at_list_spec <- list(target = signal_levels[2])
+
+    names(at_list_sens) <- var_signal
+    names(at_list_spec) <- var_signal
+
+    ems_sens <- emmeans::emmeans(model, f, at = at_list_sens, mode = "cum.prob")
+    ems_spec <- emmeans::emmeans(model, f, at = at_list_spec, mode = "exc.prob")
     out_plot <- roc_ggplot_2_vars(ems_sensitivity = ems_sens,
                                   ems_specificity = ems_spec,
                                   var_signal = var_signal,
