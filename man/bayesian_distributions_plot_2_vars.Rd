@@ -9,6 +9,8 @@ bayesian_distributions_plot_2_vars(
   var_signal = "target",
   var_group = "time",
   response = "value",
+  group1_ttl = "",
+  group2_ttl = "",
   response_scale = c(1:7),
   palette = 9,
   plot_range = c(-11, 11),

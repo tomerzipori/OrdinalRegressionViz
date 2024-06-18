@@ -10,6 +10,8 @@ bayesian_distributions_plot_3_vars(
   var_group = "time",
   var_facet = "condition",
   response = "value",
+  group1_ttl = "",
+  group2_ttl = "",
   response_scale = c(1:7),
   palette = 9,
   plot_range = c(-11, 11),
