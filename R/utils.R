@@ -141,9 +141,8 @@ bayesian_roc_ggplot_2_vars <- function(grid,
                       group = c(var_group))
 
   ggplot2::ggplot(roc_data_grid, ggplot2::aes(FAR, Sensitivity)) +
-    ggplot2::geom_polygon(ggplot2::aes(x, y, fill = !!dplyr::sym(var_group)), data = bands,
-                 alpha = 0.4) +
-    ggplot2::scale_fill_brewer(type = "qual", palette = 2) +
+    ggplot2::geom_polygon(ggplot2::aes(x, y, fill = !!dplyr::sym(var_group)), data = bands, alpha = 0.4) +
+    ggplot2::scale_fill_brewer(name = stringr::str_to_title(var_group),type = "qual", palette = 2, labels = stringr::str_to_title(levels(grid[var_group][1,]))) +
     ggnewscale::new_scale_fill() +
 
     ggplot2::geom_path(ggplot2::aes(linetype = !!dplyr::sym(var_group)), linewidth = 0.8, show.legend = F) +
