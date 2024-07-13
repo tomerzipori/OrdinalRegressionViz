@@ -684,7 +684,7 @@ roc_ggplot_2_vars <- function(ems_sensitivity,
   out_plot <- ggplot2::ggplot(roc_data, ggplot2::aes(FAR, Sensitivity)) +
     ggplot2::geom_polygon(ggplot2::aes(x, y, fill = !!dplyr::sym(var_group)), data = bands,
                  alpha = 0.4) +
-    ggplot2::scale_fill_brewer(type = "qual", palette = palette, name = stringr::str_to_title(var_group)) +
+    ggplot2::scale_fill_brewer(type = "qual", palette = palette, name = stringr::str_to_title(var_group), labels = stringr::str_to_title(levels[,1])) +
     ggnewscale::new_scale_fill() +
 
     ggplot2::geom_path(ggplot2::aes(linetype = var_group), linewidth = 1, show.legend = F) +
