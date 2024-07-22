@@ -28,13 +28,15 @@ ordinal_model_ppd_check <- function(b_model,
 
   true_vars <- vars + 1
 
-  g <- model_data[,2:true_vars]
+  g <- model_data[,2:true_vars] |>
+    purrr::map_dfr(~stringr::str_to_title(.))
 
-  out_plot <- ppc_bars_grouped(y, yrep, interaction(g, sep = ": "), facet_args = list(nrow = 4, ncol = 2)) +
+  out_plot <- bayesplot::ppc_bars_grouped(y, yrep, interaction(g, sep = ": "), facet_args = list(nrow = 4, ncol = 2), freq = F) +
     ggplot2::scale_x_continuous(breaks = min(y):max(y)) +
     ggplot2::labs(title = ttl) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
-          plot.background = ggplot2::element_rect(fill = "white"))
+                   plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+                   panel.background = ggplot2::element_rect(fill = "white", color = "white"))
 
   if (!is.null(filename)) {
     ggplot2::ggsave(filename = filename, path = path, plot = out_plot, width = width, height = height, units = "px")
