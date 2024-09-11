@@ -23,7 +23,8 @@ bayesian_roc_plot <- function(b_model,
                               response = "value",
                               CI = 0.95,
                               centrality = "mean",
-                              palette = 7,
+                              palette_thresholds = 7,
+                              palette_curves = "viridis",
                               ttl = "",
                               filename = NULL,
                               path = getwd(),
@@ -36,15 +37,15 @@ bayesian_roc_plot <- function(b_model,
   grid <- cbind(grid, probs_rvar_df)
 
   if (is.null(var_facet)) {
-    out_plot <- bayesian_roc_ggplot_2_vars(grid, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette = palette, ttl = ttl)
+    out_plot <- bayesian_roc_ggplot_2_vars(grid, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette_thresholds = palette_thresholds, palette_curves = palette_curves, ttl = ttl)
   }
 
   if (!is.null(var_facet)) {
     grid1 <- dplyr::filter(grid, !!dplyr::sym(var_facet) == levels(unique(grid[,var_facet]))[1]) |> dplyr::select(-!!dplyr::sym(var_facet))
-    plot1 <- bayesian_roc_ggplot_2_vars(grid1, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette = palette, ttl = stringr::str_to_title(levels(unique(grid[,var_facet]))[1]))
+    plot1 <- bayesian_roc_ggplot_2_vars(grid1, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette_thresholds = palette_thresholds, palette_curves = palette_curves, ttl = stringr::str_to_title(levels(unique(grid[,var_facet]))[1]))
 
     grid2 <- dplyr::filter(grid, !!dplyr::sym(var_facet) == levels(unique(grid[,var_facet]))[2]) |> dplyr::select(-!!dplyr::sym(var_facet))
-    plot2 <- bayesian_roc_ggplot_2_vars(grid2, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette = palette, ttl = stringr::str_to_title(levels(unique(grid[,var_facet]))[2]))
+    plot2 <- bayesian_roc_ggplot_2_vars(grid2, var_signal = var_signal, var_group = var_group, response = response, CI = CI, centrality = centrality, palette_thresholds = palette_thresholds, palette_curves = palette_curves, ttl = stringr::str_to_title(levels(unique(grid[,var_facet]))[2]))
 
     out_plot <- (plot1 + plot2) +
       patchwork::plot_layout(guides = "collect") +

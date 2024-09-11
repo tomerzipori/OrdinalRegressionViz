@@ -81,7 +81,8 @@ bayesian_roc_ggplot_2_vars <- function(grid,
                                        response = "value",
                                        CI = 0.95,
                                        centrality = "mean",
-                                       palette = 7,
+                                       palette_thresholds = 7,
+                                       palette_curves = "viridis",
                                        ttl = "") {
 
   grid_long <- grid |>
@@ -142,7 +143,7 @@ bayesian_roc_ggplot_2_vars <- function(grid,
 
   ggplot2::ggplot(roc_data_grid, ggplot2::aes(FAR, Sensitivity)) +
     ggplot2::geom_polygon(ggplot2::aes(x, y, fill = !!dplyr::sym(var_group)), data = bands, alpha = 0.4) +
-    ggplot2::scale_fill_manual(values = c("grey80", "grey44"), name = stringr::str_to_title(var_group), labels = stringr::str_to_title(levels(grid[var_group][1,]))) +
+    ggplot2::scale_fill_viridis_d(option = palette_curves, name = stringr::str_to_title(var_group), labels = stringr::str_to_title(levels(grid[var_group][1,]))) +
     ggnewscale::new_scale_fill() +
 
     ggplot2::geom_path(ggplot2::aes(linetype = !!dplyr::sym(var_group)), linewidth = 0.8, show.legend = F) +
@@ -155,7 +156,7 @@ bayesian_roc_ggplot_2_vars <- function(grid,
 
     ggplot2::geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
     ggplot2::expand_limits(x = c(0,1), y = c(0,1)) +
-    ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette,
+    ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette_thresholds,
                       na.translate = FALSE) +
     ggplot2::labs(color = NULL, fill = var_group, x = "False Alarm Rate", y = "Hit Rate", title = ttl) +
     ggplot2::coord_fixed() +
@@ -274,7 +275,7 @@ bayesian_distributions_plot_2_vars <- function(b_model,
               color = "gray", alpha = 0.6, key_glyph = "polygon",
               data = criteria_control) +
     # Theme and scales
-    ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette,
+    ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
                       labels = paste0(1:12, " | ", 2:13),
                       na.translate = FALSE) +
     ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = ttl, subtitle = ifelse(group1_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[1]), group1_ttl)) +
@@ -301,7 +302,7 @@ bayesian_distributions_plot_2_vars <- function(b_model,
               color = "gray", alpha = 0.6, key_glyph = "polygon",
               data = criteria_feedback) +
     # Theme and scales
-    ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette,
+    ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
                       labels = paste0(1:6, " | ", 2:7),
                       na.translate = FALSE) +
     ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = NULL, subtitle = ifelse(group2_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[2]), group2_ttl)) +
@@ -522,7 +523,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
               color = "gray", alpha = 0.6, key_glyph = "polygon",
               data = criteria_control_pre) +
     # Theme and scales
-    ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette,
+    ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
                       labels = paste0(1:12, " | ", 2:13),
                       na.translate = FALSE) +
     ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = stringr::str_to_title(levels(model_data[,var_facet])[1]), subtitle = ifelse(group1_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[1]), group1_ttl)) +
@@ -549,7 +550,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
               color = "gray", alpha = 0.6, key_glyph = "polygon",
               data = criteria_control_post) +
     # Theme and scales
-    ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette,
+    ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
                       labels = paste0(1:6, " | ", 2:7),
                       na.translate = FALSE) +
     ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = NULL, subtitle = ifelse(group2_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[2]), group2_ttl)) +
@@ -576,7 +577,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
               color = "gray", alpha = 0.6, key_glyph = "polygon",
               data = criteria_feedback_pre) +
     # Theme and scales
-    ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette,
+    ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
                       labels = paste0(1:12, " | ", 2:13),
                       na.translate = FALSE) +
     ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = stringr::str_to_title(levels(model_data[,var_facet])[2]), subtitle = ifelse(group1_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[1]), group1_ttl)) +
@@ -603,7 +604,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
               color = "gray", alpha = 0.6, key_glyph = "polygon",
               data = criteria_feedback_post) +
     # Theme and scales
-    ggplot2::scale_fill_brewer("Threshold", type = "div", palette = palette,
+    ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
                       labels = paste0(1:6, " | ", 2:7),
                       na.translate = FALSE) +
     ggplot2::labs(color = NULL, linetype = NULL, x = "", y = NULL, title = NULL, subtitle = ifelse(group2_ttl == "", stringr::str_to_title(levels(model_data[var_group][,1])[2]), group2_ttl)) +
