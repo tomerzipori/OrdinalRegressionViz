@@ -24,7 +24,7 @@ ordinal_model_ppd_check <- function(b_model,
 
   yrep <- brms::posterior_predict(b_model, ndraws = 40, newdata = model_data, re_formula = NULL, allow_new_levels = T)
 
-  y <- as.vector(as.numeric(model_data[,response]))
+  y <- as.vector(as.numeric(unlist(model_data[,response])))
 
   true_vars <- vars + 1
 
