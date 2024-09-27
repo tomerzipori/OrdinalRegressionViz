@@ -23,6 +23,7 @@ bayesian_SDT_distribution_plot <- function(b_model,
                                            response = "value",
                                            response_scale = c(1:7),
                                            palette = 9,
+                                           alpha = 0.6,
                                            plot_range = c(-11, 11),
                                            ttl = "",
                                            filename = NULL,
@@ -37,6 +38,7 @@ bayesian_SDT_distribution_plot <- function(b_model,
                                                    response = response,
                                                    response_scale = response_scale,
                                                    palette = palette,
+                                                   alpha = alpha,
                                                    plot_range = plot_range,
                                                    ttl = ttl)
   }
@@ -49,6 +51,7 @@ bayesian_SDT_distribution_plot <- function(b_model,
                                                    response = response,
                                                    response_scale = response_scale,
                                                    palette = palette,
+                                                   alpha = alpha,
                                                    plot_range = plot_range,
                                                    ttl = ttl)
   }

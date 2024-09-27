@@ -190,6 +190,7 @@ bayesian_distributions_plot_2_vars <- function(b_model,
                                                group2_ttl = "",
                                                response_scale = c(1:7),
                                                palette = 9,
+                                               alpha = 0.6,
                                                plot_range = c(-11, 11),
                                                ttl = "") {
 
@@ -272,7 +273,7 @@ bayesian_distributions_plot_2_vars <- function(b_model,
     ggplot2::geom_line(ggplot2::aes(x, d, linetype = "Fake tweets"), data = signal_dist_pre_fake) +
     # Thresholds
     tidybayes::stat_slab(ggplot2::aes(xdist = .value, fill = ordered(Response)),
-              color = "gray", alpha = 0.6, key_glyph = "polygon",
+              color = "gray", alpha = alpha, key_glyph = "polygon",
               data = criteria_control) +
     # Theme and scales
     ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
@@ -299,7 +300,7 @@ bayesian_distributions_plot_2_vars <- function(b_model,
     ggplot2::geom_line(ggplot2::aes(x, d, linetype = "Fake tweets"), data = signal_dist_post_fake) +
     # Thresholds
     tidybayes::stat_slab(ggplot2::aes(xdist = .value, fill = ordered(Response)),
-              color = "gray", alpha = 0.6, key_glyph = "polygon",
+              color = "gray", alpha = alpha, key_glyph = "polygon",
               data = criteria_feedback) +
     # Theme and scales
     ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
@@ -339,6 +340,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
                                                group2_ttl = "",
                                                response_scale = c(1:7),
                                                palette = 9,
+                                               alpha = 0.6,
                                                plot_range = c(-11, 11),
                                                ttl = "") {
 
@@ -520,7 +522,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
     ggplot2::geom_line(ggplot2::aes(x, d, linetype = "Fake tweets"), data = signal_dist_control_pre_fake) +
     # Thresholds
     tidybayes::stat_slab(ggplot2::aes(xdist = .value, fill = ordered(Response)),
-              color = "gray", alpha = 0.6, key_glyph = "polygon",
+              color = "gray", alpha = alpha, key_glyph = "polygon",
               data = criteria_control_pre) +
     # Theme and scales
     ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
@@ -547,7 +549,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
     ggplot2::geom_line(ggplot2::aes(x, d, linetype = "Fake tweets"), data = signal_dist_control_post_fake) +
     # Thresholds
     tidybayes::stat_slab(ggplot2::aes(xdist = .value, fill = ordered(Response)),
-              color = "gray", alpha = 0.6, key_glyph = "polygon",
+              color = "gray", alpha = alpha, key_glyph = "polygon",
               data = criteria_control_post) +
     # Theme and scales
     ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
@@ -574,7 +576,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
     ggplot2::geom_line(ggplot2::aes(x, d, linetype = "Fake tweets"), data = signal_dist_feedback_pre_fake) +
     # Thresholds
     tidybayes::stat_slab(ggplot2::aes(xdist = .value, fill = ordered(Response)),
-              color = "gray", alpha = 0.6, key_glyph = "polygon",
+              color = "gray", alpha = alpha, key_glyph = "polygon",
               data = criteria_feedback_pre) +
     # Theme and scales
     ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
@@ -601,7 +603,7 @@ bayesian_distributions_plot_3_vars <- function(b_model,
     ggplot2::geom_line(ggplot2::aes(x, d, linetype = "Fake tweets"), data = signal_dist_feedback_post_fake) +
     # Thresholds
     tidybayes::stat_slab(ggplot2::aes(xdist = .value, fill = ordered(Response)),
-              color = "gray", alpha = 0.6, key_glyph = "polygon",
+              color = "gray", alpha = alpha, key_glyph = "polygon",
               data = criteria_feedback_post) +
     # Theme and scales
     ggplot2::scale_fill_brewer("Threshold", type = "seq", palette = palette,
