@@ -1,0 +1,39 @@
+citHeader("To cite OrdinalRegressionViz in publications, please cite both the package and the accompanying article:")
+
+bibentry(
+  bibtype = "Manual",
+  title   = "OrdinalRegressionViz: Visualize Ordinal Probit Regression Models with ggplot2",
+  author  = person("Tomer", "Zipori"),
+  year    = "2026",
+  note    = "R package version 0.2.0",
+  url     = "https://github.com/tomerzipori/OrdinalRegressionViz",
+  textVersion = paste(
+    "Zipori, T. (2026).",
+    "OrdinalRegressionViz: Visualize Ordinal Probit Regression Models with ggplot2.",
+    "R package version 0.2.0.",
+    "https://github.com/tomerzipori/OrdinalRegressionViz"
+  )
+)
+
+bibentry(
+  bibtype = "Article",
+  title   = "A signal detection theory meta-analysis of psychological inoculation against misinformation",
+  author  = c(
+    person("A.", "Simchon"),
+    person("T.", "Zipori"),
+    person("L.", "Teitelbaum"),
+    person("S.", "Lewandowsky"),
+    person("S.", "van der Linden")
+  ),
+  journal = "Current Opinion in Psychology",
+  year    = "2026",
+  volume  = "67",
+  pages   = "102194",
+  doi     = "10.1016/j.copsyc.2025.102194",
+  textVersion = paste(
+    "Simchon, A., Zipori, T., Teitelbaum, L., Lewandowsky, S., & van der Linden, S. (2026).",
+    "A signal detection theory meta-analysis of psychological inoculation against misinformation.",
+    "Current Opinion in Psychology, 67, 102194.",
+    "https://doi.org/10.1016/j.copsyc.2025.102194"
+  )
+)
