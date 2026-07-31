@@ -1,2 +1,10 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.github$
+^_pkgdown\.yml$
+^docs$
+^data-raw$
+^LICENSE\.md$
+^tests/testthat/fixtures$
+^\.gitattributes$
+^\.gitignore$

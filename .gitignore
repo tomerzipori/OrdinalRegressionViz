@@ -40,10 +40,16 @@ vignettes/*.pdf
 .Renviron
 
 # pkgdown site
-docs/
+docs/*
+!docs/superpowers/
 
 # translation temp files
 po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# vignette build artifacts
+inst/doc
+/doc/
+/Meta/
