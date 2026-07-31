@@ -75,6 +75,11 @@ response_name <- function(model_data) {
   names(model_data)[1]
 }
 
+# The full set of response categories of a (factor or integer) response.
+full_response_levels <- function(x) {
+  if (is.factor(x)) levels(x) else sort(unique(x))
+}
+
 # Serif title/subtitle styling shared by all plots in the package.
 serif_titles <- function(title_size = 20, subtitle_size = 15) {
   ggplot2::theme(
@@ -329,9 +334,22 @@ cell_specs <- function(term_sig, on_terms) {
 # orientation as the model-based ROC: at threshold k, the hit rate is
 # P(response <= k | first level of var_signal) and the false-alarm rate is
 # P(response <= k | second level of var_signal).
-empirical_roc_points <- function(data, response, var_signal, var_group) {
-  resp <- as.integer(factor(data[[response]]))
-  n_cat <- max(resp)
+#
+# `response_levels` is the full set of response categories; pass it whenever
+# `data` may be a subset that does not realize every category (e.g. one
+# facet's rows), otherwise the thresholds would silently misalign.
+empirical_roc_points <- function(data, response, var_signal, var_group,
+                                 response_levels = NULL) {
+  resp_raw <- data[[response]]
+  if (is.null(response_levels)) {
+    response_levels <- if (is.factor(resp_raw)) {
+      levels(resp_raw)
+    } else {
+      sort(unique(resp_raw))
+    }
+  }
+  resp <- as.integer(factor(resp_raw, levels = response_levels))
+  n_cat <- length(response_levels)
   sig_levels <- levels(data[[var_signal]])
   group_levels <- levels(data[[var_group]])
 

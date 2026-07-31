@@ -111,7 +111,10 @@ roc_plot <- function(model,
       group_labels = group_labels,
       empirical = if (show_empirical) {
         facet_data <- model_data[model_data[[var_facet]] == facet_levels[i], , drop = FALSE]
-        empirical_roc_points(facet_data, response_name(model_data), var_signal, var_group)
+        empirical_roc_points(
+          facet_data, response_name(model_data), var_signal, var_group,
+          response_levels = full_response_levels(model_data[[response_name(model_data)]])
+        )
       },
       ttl = facet_labels[i]
     )
