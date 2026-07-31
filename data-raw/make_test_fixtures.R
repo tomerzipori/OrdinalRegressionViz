@@ -26,6 +26,14 @@ b_sdt_2var <- do.call(brm, c(list(
 ), opts))
 saveRDS(b_sdt_2var, file.path(fixture_dir, "brms_sdt_2var.rds"), compress = "xz")
 
+# 1b. Equal-variance variant (no disc part)
+b_sdt_eqvar <- do.call(brm, c(list(
+  formula = value ~ target * time,
+  family = cumulative("probit"),
+  data = droplevels(subset(sdt_ratings, condition == "control"))
+), opts))
+saveRDS(b_sdt_eqvar, file.path(fixture_dir, "brms_sdt_eqvar.rds"), compress = "xz")
+
 # 2. Same model with a third (faceting) predictor
 b_sdt_3var <- do.call(brm, c(list(
   formula = bf(

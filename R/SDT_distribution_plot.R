@@ -77,12 +77,9 @@ SDT_distributions_plot <- function(model,
       if (group_on) term_grp,
       if (facet_on) term_facet
     )
-    shift <- sum_matched_terms(coefs, beta_names, term_subsets(on_terms))
-    signal_sets <- lapply(
-      c(list(character(0)), term_subsets(on_terms)),
-      function(s) c(term_sig, s)
-    )
-    signal_mean <- sum_matched_terms(coefs, beta_names, signal_sets)
+    specs <- cell_specs(term_sig, on_terms)
+    shift <- sum_matched_terms(coefs, beta_names, specs$shifts)
+    signal_mean <- sum_matched_terms(coefs, beta_names, specs$mean_signal)
 
     SDT_dist_ggplot(
       ref_mean = 0,

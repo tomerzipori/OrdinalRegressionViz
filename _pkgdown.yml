@@ -15,6 +15,10 @@ reference:
   - bayesian_SDT_distribution_plot
   - ordinal_model_ppd_check
 
+- title: "SDT indices"
+  contents:
+  - sdt_indices
+
 - title: "Meta-analysis"
   contents:
   - bayesian_forest

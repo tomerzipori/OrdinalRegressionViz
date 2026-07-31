@@ -113,22 +113,19 @@ bayesian_SDT_distribution_plot <- function(b_model,
       if (facet_on) term_facet
     )
 
+    specs <- cell_specs(term_sig, on_terms)
     disc_noise <- if (has_disc) {
-      c("b_disc_Intercept", match_coefs(pars, term_subsets(on_terms), disc = TRUE))
+      c("b_disc_Intercept", match_coefs(pars, specs$disc_noise, disc = TRUE))
     } else {
       character(0)
     }
     disc_signal <- if (has_disc) {
-      c("b_disc_Intercept", match_coefs(pars, term_subsets(c(term_sig, on_terms)), disc = TRUE))
+      c("b_disc_Intercept", match_coefs(pars, specs$disc_signal, disc = TRUE))
     } else {
       character(0)
     }
-    mean_signal_sets <- lapply(
-      c(list(character(0)), term_subsets(on_terms)),
-      function(s) c(term_sig, s)
-    )
-    mean_signal <- match_coefs(pars, mean_signal_sets)
-    shift_coefs <- match_coefs(pars, term_subsets(on_terms))
+    mean_signal <- match_coefs(pars, specs$mean_signal)
+    shift_coefs <- match_coefs(pars, specs$shifts)
 
     band_noise <- latent_density_band(
       b_model, character(0), disc_noise, x,

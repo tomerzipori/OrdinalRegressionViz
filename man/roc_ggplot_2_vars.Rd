@@ -12,6 +12,7 @@ roc_ggplot_2_vars(
   palette_groups = 2,
   palette_thresholds = 2,
   group_labels = NULL,
+  empirical = NULL,
   ttl = ""
 )
 }
@@ -36,6 +37,9 @@ curve is drawn per level.}
 \item{group_labels}{Optional character vector of length 2 with legend
 labels for the levels of \code{var_group}. Defaults to its title-cased
 levels.}
+
+\item{empirical}{Optional data frame of observed hit/false-alarm rates
+(from \code{empirical_roc_points()}) to overlay.}
 
 \item{ttl}{Plot title.}
 }

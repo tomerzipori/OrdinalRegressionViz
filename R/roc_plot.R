@@ -25,6 +25,9 @@
 #' @param facet_labels Optional character vector of length 2 with panel
 #'   titles for the levels of `var_facet`. Defaults to its title-cased
 #'   levels.
+#' @param show_empirical If `TRUE`, the observed (empirical) hit and
+#'   false-alarm rates are overlaid as crosses — a quick visual check of how
+#'   well the model-implied ROC matches the data.
 #' @param ttl Plot title.
 #' @return A [ggplot2::ggplot] object (or a patchwork of two panels when
 #'   `var_facet` is given).
@@ -43,6 +46,7 @@ roc_plot <- function(model,
                      palette_thresholds = 2,
                      group_labels = NULL,
                      facet_labels = NULL,
+                     show_empirical = FALSE,
                      ttl = "") {
   check_clm(model)
   check_prob(CI, "CI")
@@ -76,6 +80,9 @@ roc_plot <- function(model,
       palette_groups = palette_groups,
       palette_thresholds = palette_thresholds,
       group_labels = group_labels,
+      empirical = if (show_empirical) {
+        empirical_roc_points(model_data, response_name(model_data), var_signal, var_group)
+      },
       ttl = ttl
     )
     return(out_plot)
@@ -102,6 +109,10 @@ roc_plot <- function(model,
       palette_groups = palette_groups,
       palette_thresholds = palette_thresholds,
       group_labels = group_labels,
+      empirical = if (show_empirical) {
+        facet_data <- model_data[model_data[[var_facet]] == facet_levels[i], , drop = FALSE]
+        empirical_roc_points(facet_data, response_name(model_data), var_signal, var_group)
+      },
       ttl = facet_labels[i]
     )
   })
@@ -126,6 +137,8 @@ roc_plot <- function(model,
 #'   (`mode = "cum.prob"`) at the first (signal) level of the SDT variable.
 #' @param ems_specificity `emmGrid` of exceedance probabilities
 #'   (`mode = "exc.prob"`) at the second (noise) level of the SDT variable.
+#' @param empirical Optional data frame of observed hit/false-alarm rates
+#'   (from `empirical_roc_points()`) to overlay.
 #' @inheritParams roc_plot
 #' @return A [ggplot2::ggplot] object.
 #' @keywords internal
@@ -136,6 +149,7 @@ roc_ggplot_2_vars <- function(ems_sensitivity,
                               palette_groups = 2,
                               palette_thresholds = 2,
                               group_labels = NULL,
+                              empirical = NULL,
                               ttl = "") {
   df_sens_raw <- as.data.frame(ems_sensitivity)
   group_levels <- levels(df_sens_raw[[var_group]])
@@ -188,7 +202,7 @@ roc_ggplot_2_vars <- function(ems_sensitivity,
       group = c(var_group)
     )
 
-  ggplot2::ggplot(roc_data, ggplot2::aes(FAR, Sensitivity)) +
+  out_plot <- ggplot2::ggplot(roc_data, ggplot2::aes(FAR, Sensitivity)) +
     ggplot2::geom_polygon(
       ggplot2::aes(x, y, fill = !!dplyr::sym(var_group)),
       data = bands, alpha = 0.4
@@ -234,4 +248,10 @@ roc_ggplot_2_vars <- function(ems_sensitivity,
     ) +
     ggplot2::coord_fixed() +
     serif_titles(subtitle_size = 14)
+
+  if (!is.null(empirical)) {
+    out_plot <- out_plot +
+      ggplot2::geom_point(data = empirical, shape = 4, size = 2.2, stroke = 0.9)
+  }
+  out_plot
 }

@@ -13,6 +13,7 @@ bayesian_roc_ggplot_2_vars(
   palette_thresholds = 7,
   palette_curves = "viridis",
   group_labels = NULL,
+  empirical = NULL,
   ttl = ""
 )
 }
@@ -39,6 +40,9 @@ pre/post. One panel is drawn per level.}
 
 \item{group_labels}{Optional character vector of length 2 with panel
 subtitles. Defaults to the title-cased levels of \code{var_group}.}
+
+\item{empirical}{Optional data frame of observed hit/false-alarm rates
+(from \code{empirical_roc_points()}) to overlay.}
 
 \item{ttl}{Plot title.}
 }

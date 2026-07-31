@@ -243,6 +243,116 @@ link_distribution_name <- function(link) {
   )
 }
 
+# The latent CDF implied by a link, parameterized like link_density().
+link_cdf <- function(link, call = rlang::caller_env()) {
+  switch(link,
+    probit = ,
+    probit_approx = function(x, location = 0, scale = 1) {
+      stats::pnorm(x, mean = location, sd = scale)
+    },
+    logit = function(x, location = 0, scale = 1) {
+      stats::plogis(x, location = location, scale = scale)
+    },
+    cauchit = function(x, location = 0, scale = 1) {
+      stats::pcauchy(x, location = location, scale = scale)
+    },
+    cloglog = function(x, location = 0, scale = 1) {
+      1 - exp(-exp((x - location) / scale))
+    },
+    loglog = function(x, location = 0, scale = 1) {
+      exp(-exp(-(x - location) / scale))
+    },
+    rlang::abort(
+      sprintf(
+        paste0(
+          "Link \"%s\" has no supported latent-distribution representation. ",
+          "Supported links: \"probit\", \"logit\", \"cauchit\", \"cloglog\", \"loglog\"."
+        ),
+        link
+      ),
+      call = call
+    )
+  )
+}
+
+# Area under the ROC curve implied by two latent distributions:
+# P(signal draw > noise draw). Closed form for probit; numeric integration
+# of f_signal(x) * F_noise(x) otherwise. All arguments are vectorized.
+latent_auc <- function(link, mu_noise, scale_noise, mu_signal, scale_signal) {
+  if (link %in% c("probit", "probit_approx")) {
+    return(stats::pnorm(
+      (mu_signal - mu_noise) / sqrt(scale_noise^2 + scale_signal^2)
+    ))
+  }
+  dens <- link_density(link)
+  cdf <- link_cdf(link)
+  n <- max(length(mu_noise), length(mu_signal))
+  mu_noise <- rep_len(mu_noise, n)
+  scale_noise <- rep_len(scale_noise, n)
+  mu_signal <- rep_len(mu_signal, n)
+  scale_signal <- rep_len(scale_signal, n)
+  vapply(seq_len(n), function(i) {
+    stats::integrate(
+      function(x) dens(x, mu_signal[i], scale_signal[i]) * cdf(x, mu_noise[i], scale_noise[i]),
+      lower = -Inf, upper = Inf
+    )$value
+  }, numeric(1))
+}
+
+
+# ---- Design-cell term sets -------------------------------------------------
+#
+# For one design cell (a combination of the levels of var_group/var_facet,
+# encoded by which non-reference terms are "on"), the sets of model terms
+# entering each SDT quantity:
+# * mean_signal: terms shifting the signal distribution's location (the
+#   signal main effect and all its interactions with active terms),
+# * disc_noise / disc_signal: terms entering the disc (log inverse scale)
+#   of each distribution,
+# * shifts: terms shifting the response thresholds (criteria).
+cell_specs <- function(term_sig, on_terms) {
+  list(
+    mean_signal = lapply(
+      c(list(character(0)), term_subsets(on_terms)),
+      function(s) c(term_sig, s)
+    ),
+    disc_noise = term_subsets(on_terms),
+    disc_signal = term_subsets(c(term_sig, on_terms)),
+    shifts = term_subsets(on_terms)
+  )
+}
+
+
+# ---- Empirical ROC points --------------------------------------------------
+
+# Observed cumulative response proportions per group, in the same
+# orientation as the model-based ROC: at threshold k, the hit rate is
+# P(response <= k | first level of var_signal) and the false-alarm rate is
+# P(response <= k | second level of var_signal).
+empirical_roc_points <- function(data, response, var_signal, var_group) {
+  resp <- as.integer(factor(data[[response]]))
+  n_cat <- max(resp)
+  sig_levels <- levels(data[[var_signal]])
+  group_levels <- levels(data[[var_group]])
+
+  out <- lapply(group_levels, function(g) {
+    in_group <- data[[var_group]] == g
+    cumprop <- function(sig_level) {
+      r <- resp[in_group & data[[var_signal]] == sig_level]
+      (cumsum(tabulate(r, nbins = n_cat)) / length(r))[-n_cat]
+    }
+    data.frame(
+      group = g,
+      Sensitivity = cumprop(sig_levels[1]),
+      FAR = cumprop(sig_levels[2])
+    )
+  })
+  out <- do.call(rbind, out)
+  out$group <- factor(out$group, levels = group_levels)
+  names(out)[1] <- var_group
+  out
+}
+
 
 # ---- Posterior latent-distribution machinery ------------------------------
 

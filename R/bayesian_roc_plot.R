@@ -18,6 +18,9 @@
 #'   [ggplot2::scale_fill_brewer()] for the threshold points.
 #' @param palette_curves Name of a viridis option (passed to
 #'   [ggplot2::scale_fill_viridis_d()]) used for the credible bands.
+#' @param show_empirical If `TRUE`, the observed (empirical) hit and
+#'   false-alarm rates are overlaid as crosses — a quick visual check of how
+#'   well the model-implied ROC matches the data.
 #' @return A [ggplot2::ggplot] object (or a patchwork of two panels when
 #'   `var_facet` is given).
 #' @seealso [roc_plot()] for `ordinal::clm()` models.
@@ -39,6 +42,7 @@ bayesian_roc_plot <- function(b_model,
                               palette_curves = "viridis",
                               group_labels = NULL,
                               facet_labels = NULL,
+                              show_empirical = FALSE,
                               ttl = "") {
   check_brmsfit(b_model)
   check_cumulative(b_model)
@@ -67,7 +71,11 @@ bayesian_roc_plot <- function(b_model,
       CI = CI, centrality = centrality,
       palette_thresholds = palette_thresholds,
       palette_curves = palette_curves,
-      group_labels = group_labels, ttl = ttl
+      group_labels = group_labels,
+      empirical = if (show_empirical) {
+        empirical_roc_points(model_data, response_name(model_data), var_signal, var_group)
+      },
+      ttl = ttl
     )
     return(out_plot)
   }
@@ -84,7 +92,12 @@ bayesian_roc_plot <- function(b_model,
       CI = CI, centrality = centrality,
       palette_thresholds = palette_thresholds,
       palette_curves = palette_curves,
-      group_labels = group_labels, ttl = facet_labels[i]
+      group_labels = group_labels,
+      empirical = if (show_empirical) {
+        facet_data <- model_data[model_data[[var_facet]] == facet_levels[i], , drop = FALSE]
+        empirical_roc_points(facet_data, response_name(model_data), var_signal, var_group)
+      },
+      ttl = facet_labels[i]
     )
   })
 
@@ -106,6 +119,8 @@ bayesian_roc_plot <- function(b_model,
 #'
 #' @param grid Data frame with the columns `var_signal`, `var_group` and one
 #'   [posterior::rvar] column per response category.
+#' @param empirical Optional data frame of observed hit/false-alarm rates
+#'   (from `empirical_roc_points()`) to overlay.
 #' @inheritParams bayesian_roc_plot
 #' @return A [ggplot2::ggplot] object.
 #' @keywords internal
@@ -117,6 +132,7 @@ bayesian_roc_ggplot_2_vars <- function(grid,
                                        palette_thresholds = 7,
                                        palette_curves = "viridis",
                                        group_labels = NULL,
+                                       empirical = NULL,
                                        ttl = "") {
   signal_levels <- levels(grid[[var_signal]])
   group_levels <- levels(grid[[var_group]])
@@ -199,7 +215,7 @@ bayesian_roc_ggplot_2_vars <- function(grid,
       group = c(var_group)
     )
 
-  ggplot2::ggplot(roc_data_grid, ggplot2::aes(FAR, Sensitivity)) +
+  out_plot <- ggplot2::ggplot(roc_data_grid, ggplot2::aes(FAR, Sensitivity)) +
     ggplot2::geom_polygon(
       ggplot2::aes(x, y, fill = !!dplyr::sym(var_group)),
       data = bands, alpha = 0.4
@@ -242,4 +258,10 @@ bayesian_roc_ggplot_2_vars <- function(grid,
     ggplot2::coord_fixed() +
     ggplot2::theme_classic() +
     serif_titles(title_size = 19)
+
+  if (!is.null(empirical)) {
+    out_plot <- out_plot +
+      ggplot2::geom_point(data = empirical, shape = 4, size = 2.2, stroke = 0.9)
+  }
+  out_plot
 }

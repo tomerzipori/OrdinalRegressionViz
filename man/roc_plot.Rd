@@ -14,6 +14,7 @@ roc_plot(
   palette_thresholds = 2,
   group_labels = NULL,
   facet_labels = NULL,
+  show_empirical = FALSE,
   ttl = ""
 )
 }
@@ -44,6 +45,10 @@ levels.}
 \item{facet_labels}{Optional character vector of length 2 with panel
 titles for the levels of \code{var_facet}. Defaults to its title-cased
 levels.}
+
+\item{show_empirical}{If \code{TRUE}, the observed (empirical) hit and
+false-alarm rates are overlaid as crosses — a quick visual check of how
+well the model-implied ROC matches the data.}
 
 \item{ttl}{Plot title.}
 }
