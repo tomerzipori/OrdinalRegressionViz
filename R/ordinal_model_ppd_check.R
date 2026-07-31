@@ -1,48 +1,68 @@
-#' Visual posterior predictive check for Bayesian ordinal probit models. A barplot
+#' Grouped posterior predictive check for a Bayesian ordinal model
 #'
-#' This function creates a grouped barplot to check posterior fit to data.
-#' @param b_model Bayesian ordinal probit regression model - a brms object
-#' @param vars number of variables, either 2 or 3
-#' @param response variable name of the response
-#' @param ttl plot's title
-#' @param filename if not NULL, the name of the png file to save the plot as
-#' @param path folder path to save the plot in
-#' @param width width of the saved plot - in pixels
-#' @param height height of the saved plot - in pixels
-#' @return a ggplot plot object
+#' Draws a grouped bar plot comparing the observed response distribution
+#' with posterior predictive draws (via [bayesplot::ppc_bars_grouped()]),
+#' with one facet per combination of the grouping variables.
+#'
+#' @inheritParams bayesian_SDT_distribution_plot
+#' @param group_vars Character vector with the names of the model variables
+#'   whose combinations define the facets (e.g.
+#'   `c("target", "time")`).
+#' @param ndraws Number of posterior predictive draws to use.
+#' @return A [ggplot2::ggplot] object.
+#' @examples
+#' \dontrun{
+#' ordinal_model_ppd_check(b_fit, group_vars = c("target", "time"))
+#' }
 #' @export
 ordinal_model_ppd_check <- function(b_model,
-                                    vars,
-                                    response = "value",
-                                    ttl = "",
-                                    filename = NULL,
-                                    path = getwd(),
-                                    width = 2450,
-                                    height = 1446) {
+                                    group_vars,
+                                    ndraws = 40,
+                                    ttl = "") {
+  check_brmsfit(b_model)
+  model_data <- b_model$data
 
-  model_data <- insight::get_data(b_model)
-
-  yrep <- brms::posterior_predict(b_model, ndraws = 40, newdata = model_data, re_formula = NULL, allow_new_levels = T)
-
-  y <- as.vector(as.numeric(unlist(model_data[,response])))
-
-  true_vars <- vars + 1
-
-  g <- model_data[,2:true_vars] |>
-    purrr::map_dfr(~stringr::str_to_title(.))
-
-  out_plot <- bayesplot::ppc_bars_grouped(y, yrep, interaction(g, sep = ": "), facet_args = list(nrow = 4, ncol = 2), freq = F) +
-    ggplot2::scale_x_continuous(breaks = min(y):max(y)) +
-    ggplot2::labs(title = ttl) +
-    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
-                   plot.background = ggplot2::element_rect(fill = "white", color = "white"),
-                   panel.background = ggplot2::element_rect(fill = "white", color = "white"))
-
-  if (!is.null(filename)) {
-    ggplot2::ggsave(filename = filename, path = path, plot = out_plot, width = width, height = height, units = "px")
+  if (!is.character(group_vars) || length(group_vars) == 0) {
+    rlang::abort("`group_vars` must be a character vector of model variable names.")
+  }
+  missing_vars <- setdiff(group_vars, names(model_data))
+  if (length(missing_vars) > 0) {
+    rlang::abort(
+      sprintf(
+        "`group_vars` not found in the model data: %s. Available variables: %s.",
+        paste0("\"", missing_vars, "\"", collapse = ", "),
+        paste0("\"", names(model_data), "\"", collapse = ", ")
+      )
+    )
   }
 
-  out_plot
+  yrep <- brms::posterior_predict(b_model, ndraws = ndraws)
+  y <- as.numeric(model_data[[response_name(model_data)]])
 
+  # Title-case the group labels while preserving the level order.
+  pretty_factor <- function(v) {
+    v <- as.factor(v)
+    factor(
+      stringr::str_to_title(as.character(v)),
+      levels = stringr::str_to_title(levels(v))
+    )
+  }
+  g <- interaction(lapply(model_data[group_vars], pretty_factor), sep = ": ")
+
+  n_groups <- nlevels(droplevels(g))
+  facet_args <- list(ncol = min(2, n_groups), nrow = ceiling(n_groups / 2))
+
+  p <- bayesplot::ppc_bars_grouped(y, yrep, g, facet_args = facet_args, freq = FALSE)
+  # ppc_bars_grouped() already sets an x scale; replacing it emits a message.
+  suppressMessages(
+    p <- p +
+      ggplot2::scale_x_continuous(breaks = min(y):max(y)) +
+      ggplot2::labs(title = ttl) +
+      ggplot2::theme(
+        plot.title = ggplot2::element_text(hjust = 0.5),
+        plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+        panel.background = ggplot2::element_rect(fill = "white", color = "white")
+      )
+  )
+  p
 }
-

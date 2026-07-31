@@ -7,12 +7,13 @@
 rvar_cumsum(rvars)
 }
 \arguments{
-\item{rvars}{a posterior rvar object}
+\item{rvars}{A \link[posterior:rvar]{posterior::rvar} vector.}
 }
 \value{
-numeric vector
+An rvar vector of the same length holding the cumulative sums.
 }
 \description{
-This function is a simple loop to calculate a cumulative sum of rvar objects
+Computes the running sum of a \link[posterior:rvar]{posterior::rvar} vector, preserving the
+full posterior distribution of each partial sum.
 }
 \keyword{internal}

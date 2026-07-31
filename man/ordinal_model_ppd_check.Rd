@@ -2,39 +2,31 @@
 % Please edit documentation in R/ordinal_model_ppd_check.R
 \name{ordinal_model_ppd_check}
 \alias{ordinal_model_ppd_check}
-\title{Visual posterior predictive check for Bayesian ordinal probit models. A barplot}
+\title{Grouped posterior predictive check for a Bayesian ordinal model}
 \usage{
-ordinal_model_ppd_check(
-  b_model,
-  vars,
-  response = "value",
-  ttl = "",
-  filename = NULL,
-  path = getwd(),
-  width = 2450,
-  height = 1446
-)
+ordinal_model_ppd_check(b_model, group_vars, ndraws = 40, ttl = "")
 }
 \arguments{
-\item{b_model}{Bayesian ordinal probit regression model - a brms object}
+\item{b_model}{A \code{brmsfit} cumulative regression model.}
 
-\item{vars}{number of variables, either 2 or 3}
+\item{group_vars}{Character vector with the names of the model variables
+whose combinations define the facets (e.g.
+\code{c("target", "time")}).}
 
-\item{response}{variable name of the response}
+\item{ndraws}{Number of posterior predictive draws to use.}
 
-\item{ttl}{plot's title}
-
-\item{filename}{if not NULL, the name of the png file to save the plot as}
-
-\item{path}{folder path to save the plot in}
-
-\item{width}{width of the saved plot - in pixels}
-
-\item{height}{height of the saved plot - in pixels}
+\item{ttl}{Plot title.}
 }
 \value{
-a ggplot plot object
+A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
 }
 \description{
-This function creates a grouped barplot to check posterior fit to data.
+Draws a grouped bar plot comparing the observed response distribution
+with posterior predictive draws (via \code{\link[bayesplot:ppc_bars_grouped]{bayesplot::ppc_bars_grouped()}}),
+with one facet per combination of the grouping variables.
+}
+\examples{
+\dontrun{
+ordinal_model_ppd_check(b_fit, group_vars = c("target", "time"))
+}
 }

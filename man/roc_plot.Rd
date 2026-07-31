@@ -2,48 +2,70 @@
 % Please edit documentation in R/roc_plot.R
 \name{roc_plot}
 \alias{roc_plot}
-\title{ROC Curve for two or three 2-level categorical predictor probit ordinal regression models}
+\title{ROC curve of a frequentist ordinal regression model}
 \usage{
 roc_plot(
   model,
-  var_signal = "target",
-  var_group = "time",
+  var_signal,
+  var_group,
   var_facet = NULL,
-  response = "value",
-  palette = 2,
-  ttl = "",
-  filename = NULL,
-  path = getwd(),
-  width = 2450,
-  height = 1446
+  CI = 0.95,
+  palette_groups = 2,
+  palette_thresholds = 2,
+  group_labels = NULL,
+  facet_labels = NULL,
+  ttl = ""
 )
 }
 \arguments{
-\item{model}{ordinal regression model, as returned by clm or clmm functions}
+\item{model}{A \code{clm} or \code{clmm} ordinal regression model.}
 
-\item{var_signal}{variable analogous to the classic SDT signal, e.g. old/new}
+\item{var_signal}{Name (string) of the 2-level factor playing the role of
+the SDT signal, e.g. old/new or true/fake.}
 
-\item{var_group}{variable name of the co-variate, e.g. experimental group}
+\item{var_group}{Name (string) of a 2-level factor covariate; one ROC
+curve is drawn per level.}
 
-\item{var_facet}{variable to facet by}
+\item{var_facet}{Optional name (string) of a second 2-level factor
+covariate; one panel is drawn per level.}
 
-\item{response}{variable name of the response}
+\item{CI}{Confidence level of the intervals (between 0 and 1).}
 
-\item{palette}{integer representing a divergent palette in the scale_color_brewer function}
+\item{palette_groups}{Integer index of a qualitative palette passed to
+\code{\link[ggplot2:scale_fill_brewer]{ggplot2::scale_fill_brewer()}} for the confidence bands.}
 
-\item{ttl}{plot's title}
+\item{palette_thresholds}{Integer index of a diverging palette passed to
+\code{\link[ggplot2:scale_fill_brewer]{ggplot2::scale_fill_brewer()}} for the threshold points.}
 
-\item{filename}{if not NULL, the name of the png file to save the plot as}
+\item{group_labels}{Optional character vector of length 2 with legend
+labels for the levels of \code{var_group}. Defaults to its title-cased
+levels.}
 
-\item{path}{folder path to save the plot in}
+\item{facet_labels}{Optional character vector of length 2 with panel
+titles for the levels of \code{var_facet}. Defaults to its title-cased
+levels.}
 
-\item{width}{width of the saved plot - in pixels}
-
-\item{height}{height of the saved plot - in pixels}
+\item{ttl}{Plot title.}
 }
 \value{
-a ggplot plot object
+A \link[ggplot2:ggplot]{ggplot2::ggplot} object (or a patchwork of two panels when
+\code{var_facet} is given).
 }
 \description{
-This function makes a ROC curve for two or three categorical variables ordinal regression models.
+Draws a receiver operating characteristic (ROC) curve — hit rate against
+false-alarm rate across the response thresholds — from a cumulative link
+model fitted with \code{\link[ordinal:clm]{ordinal::clm()}} or \code{\link[ordinal:clmm]{ordinal::clmm()}}. One curve is
+drawn per level of \code{var_group}, with confidence bands computed from
+\code{\link[emmeans:emmeans]{emmeans::emmeans()}} cumulative-probability estimates; when \code{var_facet}
+is given, side-by-side ROC panels are drawn for its two levels.
+}
+\examples{
+\dontshow{if (requireNamespace("ordinal", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+fit <- ordinal::clm(value ~ target * time, data = sdt_ratings)
+roc_plot(fit, var_signal = "target", var_group = "time")
+\dontshow{\}) # examplesIf}
+}
+\seealso{
+\code{\link[=bayesian_roc_plot]{bayesian_roc_plot()}} for \code{\link[brms:brm]{brms::brm()}} models, and
+\code{\link[=SDT_distributions_plot]{SDT_distributions_plot()}} for the corresponding latent distributions.
 }
