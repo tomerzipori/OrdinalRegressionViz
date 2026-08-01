@@ -55,7 +55,7 @@ summary(fit)
 #> data:    sdt_ratings
 #> 
 #>  link   threshold nobs logLik   AIC      niter max.grad cond.H 
-#>  probit flexible  4000 -6415.74 12847.48 5(0)  8.51e-11 7.0e+01
+#>  probit flexible  4000 -6415.74 12847.48 5(0)  8.47e-11 7.0e+01
 #> 
 #> Coefficients:
 #>                     Estimate Std. Error z value Pr(>|z|)    
