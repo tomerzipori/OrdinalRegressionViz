@@ -1,0 +1,28 @@
+url: https://tomerzipori.github.io/OrdinalRegressionViz/
+
+template:
+  bootstrap: 5
+
+reference:
+- title: "Frequentist models (ordinal::clm)"
+  contents:
+  - roc_plot
+  - SDT_distributions_plot
+
+- title: "Bayesian models (brms)"
+  contents:
+  - bayesian_roc_plot
+  - bayesian_SDT_distribution_plot
+  - ordinal_model_ppd_check
+
+- title: "SDT indices"
+  contents:
+  - sdt_indices
+
+- title: "Meta-analysis"
+  contents:
+  - bayesian_forest
+
+- title: "Data"
+  contents:
+  - sdt_ratings

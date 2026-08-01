@@ -2,23 +2,25 @@
 % Please edit documentation in R/utils.R
 \name{bayesian_CI_bands}
 \alias{bayesian_CI_bands}
-\title{Calculating credible interval bands for ROC curves}
+\title{Credible/confidence band polygon for ROC curves}
 \usage{
 bayesian_CI_bands(data, x, xmin, xmax, y, ymin, ymax, group = NULL)
 }
 \arguments{
-\item{xmin}{lower bound of CI on the x axis}
+\item{data}{Data frame holding the curve and its interval bounds.}
 
-\item{xmax}{upper bound of CI on the x axis}
+\item{x, xmin, xmax}{Names (strings) of the x coordinate and its bounds.}
 
-\item{ymin}{lower bound of CI on the y axis}
+\item{y, ymin, ymax}{Names (strings) of the y coordinate and its bounds.}
 
-\item{ymax}{upper bound of CI on the y axis}
+\item{group}{Optional character vector of grouping column names.}
 }
 \value{
-data frame
+A data frame of polygon vertices with columns \code{x} and \code{y} (plus
+any grouping columns).
 }
 \description{
-This is a helper function for the main Bayesian ROC curve plotting function, calculating the CI bands around the curve
+Builds the polygon that connects the lower and upper interval bounds of a
+ROC curve so it can be drawn with \code{\link[ggplot2:geom_polygon]{ggplot2::geom_polygon()}}.
 }
 \keyword{internal}

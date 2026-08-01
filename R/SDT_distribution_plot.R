@@ -1,131 +1,195 @@
-#' Latent normal distributions for two or three 2-level categorical predictor probit ordinal regression models
+#' Latent SDT distributions of a frequentist ordinal regression model
 #'
-#' This function makes a Latent normal distributions plot for two or three categorical variables ordinal regression models.
-#' @param model ordinal regression model, as returned by clm or clmm functions
-#' @param var_signal variable analogous to the classic SDT signal, e.g. old/new
-#' @param var_group variable name of the co-variate, e.g. experimental group
-#' @param var_facet variable to facet by
-#' @param response variable name of the response
-#' @param plot_limits 2-integer vector representing x-axis limits of the plot
-#' @param palette integer representing a divergent palette in the scale_color_brewer function
-#' @param alpha opacity of lines representing thresholds
-#' @param ttl plot's title
-#' @param group1_ttl label for the first group subplot
-#' @param group2_ttl label for the second group subplot
-#' @param filename if not NULL, the name of the png file to save the plot as
-#' @param path folder path to save the plot in
-#' @param width width of the saved plot - in pixels
-#' @param height height of the saved plot - in pixels
-#' @return a ggplot plot object
+#' Plots the latent ("perceived signal") distributions implied by a
+#' cumulative link model fitted with [ordinal::clm()] or [ordinal::clmm()],
+#' together with the estimated response thresholds (criteria), in the style
+#' of signal detection theory (SDT). One panel is drawn for every level of
+#' `var_group`, optionally split by a third variable (`var_facet`).
+#'
+#' The latent distribution follows from the model's link function: normal
+#' for `probit` (the classic SDT display), logistic for `logit`, Cauchy for
+#' `cauchit`, and Gumbel for `cloglog`/`loglog`. All latent distributions
+#' have unit scale (scale/disc effects are not supported). Models without
+#' some interaction terms are supported: terms the model does not contain
+#' are simply treated as zero.
+#'
+#' @inheritParams roc_plot
+#' @param plot_limits Numeric vector of length 2: x-axis limits of the
+#'   latent scale.
+#' @param palette Integer index of a diverging palette passed to
+#'   [ggplot2::scale_color_brewer()] for the threshold lines.
+#' @param alpha Opacity of the threshold lines.
+#' @param signal_labels Optional character vector of length 2 with legend
+#'   labels for the two latent distributions (reference level first).
+#'   Defaults to the title-cased levels of `var_signal`.
+#' @param group_labels Optional character vector of length 2 with panel
+#'   titles for the levels of `var_group`. Defaults to its title-cased
+#'   levels.
+#' @param x_label Label of the x (latent) axis.
+#' @return A [patchwork][patchwork::patchwork-package] object combining the
+#'   panels.
+#' @seealso [bayesian_SDT_distribution_plot()] for [brms::brm()] models, and
+#'   [roc_plot()] for the corresponding ROC curves.
+#' @examplesIf requireNamespace("ordinal", quietly = TRUE)
+#' fit <- ordinal::clm(value ~ target * time, data = sdt_ratings, link = "probit")
+#' SDT_distributions_plot(fit, var_signal = "target", var_group = "time")
 #' @export
 SDT_distributions_plot <- function(model,
-                                   var_signal = "target",
-                                   var_group = "time",
+                                   var_signal,
+                                   var_group,
                                    var_facet = NULL,
-                                   response = "value",
                                    plot_limits = c(-3, 5),
                                    palette = 9,
                                    alpha = 0.8,
+                                   signal_labels = NULL,
+                                   group_labels = NULL,
+                                   facet_labels = NULL,
                                    ttl = "",
-                                   group1_ttl = "",
-                                   group2_ttl = "",
-                                   filename = NULL,
-                                   path = getwd(),
-                                   width = 2450,
-                                   height = 1446) {
+                                   x_label = "Latent signal") {
+  check_clm(model)
 
   model_data <- model$model
-  model_coef <- names(coef(model))
-
-  thresholds <- coef(model)[1:max(as.numeric(model_data[response][,1]))-1]
-  b_group <- coef(model)[paste0(var_group, levels(model_data[var_group][,1])[2])]
-  b_signal <- coef(model)[paste0(var_signal, levels(model_data[var_signal][,1])[2])]
-  b_groupXsignal <- ifelse(is.null(var_facet),
-                           coef(model)[model_coef[stringr::str_detect(model_coef, var_signal) & stringr::str_detect(model_coef, var_group)]],
-                           coef(model)[model_coef[stringr::str_detect(model_coef, var_signal) & stringr::str_detect(model_coef, var_group) & stringr::str_detect(model_coef, var_facet, negate = T)]])
-
+  sig <- check_factor_var(model_data, var_signal, "var_signal")
+  grp <- check_factor_var(model_data, var_group, "var_group")
   if (!is.null(var_facet)) {
+    check_factor_var(model_data, var_facet, "var_facet")
+  }
+  signal_labels <- check_labels2(signal_labels, levels(sig), "signal_labels")
+  group_labels <- check_labels2(group_labels, levels(grp), "group_labels")
 
-    b_facet <- coef(model)[paste0(var_facet, levels(model_data[var_facet][,1])[2])]
-    b_groupXfacet <- coef(model)[model_coef[stringr::str_detect(model_coef, var_group) & stringr::str_detect(model_coef, var_facet) & stringr::str_detect(model_coef, var_signal, negate = T)]]
-    b_signalXfacet <- coef(model)[model_coef[stringr::str_detect(model_coef, var_group, negate = T) & stringr::str_detect(model_coef, var_facet) & stringr::str_detect(model_coef, var_signal)]]
-    b_groupXsignalXfacet <- coef(model)[model_coef[stringr::str_detect(model_coef, var_group) & stringr::str_detect(model_coef, var_facet) & stringr::str_detect(model_coef, var_signal)]]
+  dens <- link_density(model$link)
 
+  thresholds <- model$alpha
+  coefs <- stats::coef(model)
+  beta_names <- setdiff(names(coefs), names(thresholds))
+
+  term_sig <- paste0(var_signal, levels(sig)[2])
+  term_grp <- paste0(var_group, levels(grp)[2])
+  term_facet <- if (is.null(var_facet)) {
+    NULL
+  } else {
+    paste0(var_facet, levels(model_data[[var_facet]])[2])
+  }
+  match_term(beta_names, term_sig, required = TRUE)
+
+  build_panel <- function(group_on, facet_on, panel_ttl) {
+    on_terms <- c(
+      if (group_on) term_grp,
+      if (facet_on) term_facet
+    )
+    specs <- cell_specs(term_sig, on_terms)
+    shift <- sum_matched_terms(coefs, beta_names, specs$shifts)
+    signal_mean <- sum_matched_terms(coefs, beta_names, specs$mean_signal)
+
+    SDT_dist_ggplot(
+      ref_mean = 0,
+      group_mean = signal_mean,
+      thresholds = thresholds - shift,
+      dens = dens,
+      signal_labels = signal_labels,
+      palette = palette,
+      alpha = alpha,
+      plot_limits = plot_limits,
+      ttl = panel_ttl,
+      x_label = x_label
+    )
   }
 
-  # distribution means
-  ## facet1
-  ### group1
-  thresholds_facet1_group1 <- thresholds
-  mean_facet1_group1_noise <- 0
-  mean_facet1_group1_signal <- b_signal
-
-  facet1_group1_plot <- SDT_dist_ggplot(ref_mean = mean_facet1_group1_noise, group_mean = mean_facet1_group1_signal, thresholds = thresholds_facet1_group1,
-                                        palette = palette, alpha = alpha, plot_limits = plot_limits,
-                                        ttl = ifelse(group1_ttl == "",
-                                                     stringr::str_to_title(levels(model_data[var_group][,1]))[1],
-                                                     group1_ttl),
-                                        x_label = "Obs. signal")
-
-  ### group2
-  thresholds_facet1_group2 <- thresholds - b_group
-  mean_facet1_group2_noise <- 0
-  mean_facet1_group2_signal <- b_signal + b_groupXsignal
-
-  facet1_group2_plot <- SDT_dist_ggplot(ref_mean = mean_facet1_group2_noise, group_mean = mean_facet1_group2_signal, thresholds = thresholds_facet1_group2,
-                                        palette = palette, alpha = alpha, plot_limits = plot_limits,
-                                        ttl = ifelse(group2_ttl == "",
-                                                     stringr::str_to_title(levels(model_data[var_group][,1]))[2],
-                                                     group2_ttl),
-                                        x_label = "Obs. signal")
-
-  if (!is.null(var_facet)) {
-
-    ## facet2
-    ### group1
-    thresholds_facet2_group1 <- thresholds - b_facet
-    mean_facet2_group1_noise <- 0
-    mean_facet2_group1_signal <- b_signal + b_signalXfacet
-
-    facet2_group1_plot <- SDT_dist_ggplot(ref_mean = mean_facet2_group1_noise, group_mean = mean_facet2_group1_signal, thresholds = thresholds_facet2_group1,
-                                          palette = palette, alpha = alpha, plot_limits = plot_limits,
-                                          ttl = ifelse(group1_ttl == "",
-                                                       stringr::str_to_title(levels(model_data[var_group][,1]))[1],
-                                                       group1_ttl),
-                                          x_label = "Obs. signal")
-
-    ### group2
-    thresholds_facet2_group2 <- thresholds - b_facet - b_group - b_groupXfacet
-    mean_facet2_group2_noise <- 0
-    mean_facet2_group2_signal <- b_signal + b_groupXsignal + b_signalXfacet + b_groupXsignalXfacet
-
-    facet2_group2_plot <- SDT_dist_ggplot(ref_mean = mean_facet2_group2_noise, group_mean = mean_facet2_group2_signal, thresholds = thresholds_facet2_group2,
-                                          palette = palette, alpha = alpha, plot_limits = plot_limits,
-                                          ttl = ifelse(group2_ttl == "",
-                                                       stringr::str_to_title(levels(model_data[var_group][,1]))[2],
-                                                       group2_ttl),
-                                          x_label = "Obs. signal")
-
-    row_label_1 <- patchwork::wrap_elements(panel = ggpubr::text_grob(stringr::str_to_title(levels(model_data[var_facet][,1])[1]), face = "bold", family = "serif"))
-    row_label_2 <- patchwork::wrap_elements(panel = ggpubr::text_grob(stringr::str_to_title(levels(model_data[var_facet][,1])[2]), face = "bold", family = "serif"))
-
-    out_plot <- (row_label_1 / (facet1_group1_plot | facet1_group2_plot) / row_label_2 / (facet2_group1_plot | facet2_group2_plot)) +
-      patchwork::plot_layout(guides = "collect", heights = c(.17,1,.17,1), nrow = 4) +
-      patchwork::plot_annotation(title = ttl, theme = ggplot2::theme(plot.title = ggplot2::element_text(size = 19, hjust = 0.5, family = "serif")))
-
-  } else if (is.null(var_facet)) {
-
-    out_plot <- (facet1_group1_plot / facet1_group2_plot) +
-      patchwork::plot_layout(guides = "collect") +
-      patchwork::plot_annotation(title = ttl, theme = ggplot2::theme(plot.title = ggplot2::element_text(family = "serif", size = 20, hjust = .5)))
-
+  if (is.null(var_facet)) {
+    out_plot <- (
+      build_panel(FALSE, FALSE, panel_ttl = group_labels[1]) /
+        build_panel(TRUE, FALSE, panel_ttl = group_labels[2])
+    ) +
+      patchwork::plot_layout(guides = "collect")
+  } else {
+    facet_labels <- check_labels2(
+      facet_labels, levels(model_data[[var_facet]]), "facet_labels"
+    )
+    row_label <- function(lbl) {
+      patchwork::wrap_elements(
+        panel = grid::textGrob(lbl, gp = grid::gpar(fontface = "bold", fontfamily = "serif"))
+      )
+    }
+    out_plot <- (
+      row_label(facet_labels[1]) /
+        (build_panel(FALSE, FALSE, group_labels[1]) | build_panel(TRUE, FALSE, group_labels[2])) /
+        row_label(facet_labels[2]) /
+        (build_panel(FALSE, TRUE, group_labels[1]) | build_panel(TRUE, TRUE, group_labels[2]))
+    ) +
+      patchwork::plot_layout(guides = "collect", heights = c(.17, 1, .17, 1), nrow = 4)
   }
 
-  if (!is.null(filename)) {
-    ggplot2::ggsave(filename = filename, path = path, plot = out_plot, width = width, height = height, units = "px")
-  }
-
-  out_plot
-
+  out_plot +
+    patchwork::plot_annotation(
+      title = ttl,
+      theme = ggplot2::theme(
+        plot.title = ggplot2::element_text(size = 20, family = "serif", hjust = 0.5)
+      )
+    )
 }
 
+
+#' Single latent-distribution panel (frequentist)
+#'
+#' Internal workhorse of [SDT_distributions_plot()]: draws the reference and
+#' signal latent distributions of one design cell together with its response
+#' thresholds.
+#'
+#' @param ref_mean Location of the reference ("noise") distribution.
+#' @param group_mean Location of the signal distribution.
+#' @param thresholds Named numeric vector of response thresholds.
+#' @param dens Density function of the latent distribution, see
+#'   `link_density()`.
+#' @param signal_labels Character vector of length 2 with the legend labels
+#'   (reference first).
+#' @inheritParams SDT_distributions_plot
+#' @return A [ggplot2::ggplot] object.
+#' @keywords internal
+SDT_dist_ggplot <- function(ref_mean = 0,
+                            group_mean = 1,
+                            thresholds,
+                            dens = link_density("probit"),
+                            signal_labels = c("Noise", "Signal"),
+                            palette = 9,
+                            alpha = 0.7,
+                            plot_limits = c(-3, 5),
+                            ttl = "",
+                            x_label = "") {
+  threshold_names <- factor(names(thresholds), levels = names(thresholds))
+
+  ggplot2::ggplot() +
+    # Reference ("noise") distribution
+    ggplot2::stat_function(
+      ggplot2::aes(linetype = signal_labels[1]),
+      fun = dens,
+      args = list(location = ref_mean, scale = 1),
+      linewidth = 1
+    ) +
+    # Signal distribution
+    ggplot2::stat_function(
+      ggplot2::aes(linetype = signal_labels[2]),
+      fun = dens,
+      args = list(location = group_mean, scale = 1),
+      linewidth = 1
+    ) +
+    # Thresholds
+    ggplot2::geom_vline(
+      ggplot2::aes(xintercept = thresholds, color = threshold_names),
+      linewidth = 1.5, alpha = alpha
+    ) +
+    ggplot2::scale_linetype_manual(
+      breaks = signal_labels,
+      values = c("solid", "dashed")
+    ) +
+    ggplot2::scale_color_brewer("Threshold",
+      type = "div", palette = palette,
+      labels = stringr::str_replace(names(thresholds), pattern = "\\|", replacement = " | ")
+    ) +
+    ggplot2::labs(y = NULL, linetype = NULL, x = x_label, title = ttl) +
+    ggplot2::expand_limits(x = plot_limits, y = 0.45) +
+    ggplot2::scale_x_continuous(
+      breaks = seq(plot_limits[1], plot_limits[2], 1),
+      labels = seq(plot_limits[1], plot_limits[2], 1)
+    ) +
+    ggplot2::theme_classic()
+}

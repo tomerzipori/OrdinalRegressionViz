@@ -2,54 +2,83 @@
 % Please edit documentation in R/bayesian_roc_plot.R
 \name{bayesian_roc_plot}
 \alias{bayesian_roc_plot}
-\title{ROC Curve for two or three 2-level categorical predictor Bayesian ordinal probit regression models}
+\title{ROC curve of a Bayesian ordinal regression model}
 \usage{
 bayesian_roc_plot(
   b_model,
-  var_signal = "target",
-  var_group = "time",
+  var_signal,
+  var_group,
   var_facet = NULL,
-  response = "value",
   CI = 0.95,
-  centrality = "mean",
-  palette = 7,
-  ttl = "",
-  filename = NULL,
-  path = getwd(),
-  width = 2450,
-  height = 1446
+  centrality = c("mean", "median"),
+  palette_thresholds = 7,
+  palette_curves = "viridis",
+  group_labels = NULL,
+  facet_labels = NULL,
+  show_empirical = FALSE,
+  ttl = ""
 )
 }
 \arguments{
-\item{b_model}{Bayesian ordinal probit regression model - a brms object}
+\item{b_model}{A \code{brmsfit} cumulative regression model.}
 
-\item{var_signal}{variable analogous to the classic SDT signal, e.g. old/new}
+\item{var_signal}{Name (string) of the 2-level factor playing the role of
+the SDT signal, e.g. old/new or true/fake.}
 
-\item{var_group}{variable name of the co-variate, e.g. experimental group}
+\item{var_group}{Name (string) of a 2-level factor covariate, e.g.
+pre/post. One panel is drawn per level.}
 
-\item{var_facet}{variable to facet by}
+\item{var_facet}{Optional name (string) of a second 2-level factor
+covariate; panels are duplicated for each of its levels.}
 
-\item{response}{variable name of the response}
+\item{CI}{Width of the credible intervals (between 0 and 1).}
 
-\item{CI}{credible interval width between 0 and 1}
+\item{centrality}{Posterior point summary drawn as the curve: \code{"mean"}
+(default) or \code{"median"}.}
 
-\item{centrality}{centrality measure for posterior, either "mean" or "median"}
+\item{palette_thresholds}{Integer index of a diverging palette passed to
+\code{\link[ggplot2:scale_fill_brewer]{ggplot2::scale_fill_brewer()}} for the threshold points.}
 
-\item{palette}{integer representing a divergent palette in the scale_color_brewer function}
+\item{palette_curves}{Name of a viridis option (passed to
+\code{\link[ggplot2:scale_fill_viridis_d]{ggplot2::scale_fill_viridis_d()}}) used for the credible bands.}
 
-\item{ttl}{plot's title}
+\item{group_labels}{Optional character vector of length 2 with panel
+subtitles. Defaults to the title-cased levels of \code{var_group}.}
 
-\item{filename}{if not NULL, the name of the png file to save the plot as}
+\item{facet_labels}{Optional character vector of length 2 with panel
+titles for the levels of \code{var_facet}. Defaults to its title-cased
+levels.}
 
-\item{path}{folder path to save the plot in}
+\item{show_empirical}{If \code{TRUE}, the observed (empirical) hit and
+false-alarm rates are overlaid as crosses — a quick visual check of how
+well the model-implied ROC matches the data.}
 
-\item{width}{width of the saved plot - in pixels}
-
-\item{height}{height of the saved plot - in pixels}
+\item{ttl}{Plot title.}
 }
 \value{
-a ggplot plot object
+A \link[ggplot2:ggplot]{ggplot2::ggplot} object (or a patchwork of two panels when
+\code{var_facet} is given).
 }
 \description{
-This function makes a ROC curve for two or three categorical variables Bayesian ordinal probit regression models.
+Draws a receiver operating characteristic (ROC) curve — hit rate against
+false-alarm rate across the response thresholds — from a Bayesian
+cumulative ("ordinal") regression model fitted with \code{\link[brms:brm]{brms::brm()}}. One
+curve is drawn per level of \code{var_group}, with curvewise credible bands;
+when \code{var_facet} is given, side-by-side ROC panels are drawn for its two
+levels.
+}
+\details{
+Population-level ("fixed effects only") predicted probabilities are used
+(\code{re_formula = NA} in \code{\link[brms:posterior_epred]{brms::posterior_epred()}}).
+}
+\examples{
+\dontrun{
+bayesian_roc_plot(
+  b_fit,
+  var_signal = "target", var_group = "time"
+)
+}
+}
+\seealso{
+\code{\link[=roc_plot]{roc_plot()}} for \code{ordinal::clm()} models.
 }

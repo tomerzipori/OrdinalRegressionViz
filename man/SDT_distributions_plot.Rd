@@ -2,60 +2,85 @@
 % Please edit documentation in R/SDT_distribution_plot.R
 \name{SDT_distributions_plot}
 \alias{SDT_distributions_plot}
-\title{Latent normal distributions for two or three 2-level categorical predictor probit ordinal regression models}
+\title{Latent SDT distributions of a frequentist ordinal regression model}
 \usage{
 SDT_distributions_plot(
   model,
-  var_signal = "target",
-  var_group = "time",
+  var_signal,
+  var_group,
   var_facet = NULL,
-  response = "value",
   plot_limits = c(-3, 5),
   palette = 9,
   alpha = 0.8,
+  signal_labels = NULL,
+  group_labels = NULL,
+  facet_labels = NULL,
   ttl = "",
-  group1_ttl = "",
-  group2_ttl = "",
-  filename = NULL,
-  path = getwd(),
-  width = 2450,
-  height = 1446
+  x_label = "Latent signal"
 )
 }
 \arguments{
-\item{model}{ordinal regression model, as returned by clm or clmm functions}
+\item{model}{A \code{clm} or \code{clmm} ordinal regression model.}
 
-\item{var_signal}{variable analogous to the classic SDT signal, e.g. old/new}
+\item{var_signal}{Name (string) of the 2-level factor playing the role of
+the SDT signal, e.g. old/new or true/fake.}
 
-\item{var_group}{variable name of the co-variate, e.g. experimental group}
+\item{var_group}{Name (string) of a 2-level factor covariate; one ROC
+curve is drawn per level.}
 
-\item{var_facet}{variable to facet by}
+\item{var_facet}{Optional name (string) of a second 2-level factor
+covariate; one panel is drawn per level.}
 
-\item{response}{variable name of the response}
+\item{plot_limits}{Numeric vector of length 2: x-axis limits of the
+latent scale.}
 
-\item{plot_limits}{2-integer vector representing x-axis limits of the plot}
+\item{palette}{Integer index of a diverging palette passed to
+\code{\link[ggplot2:scale_color_brewer]{ggplot2::scale_color_brewer()}} for the threshold lines.}
 
-\item{palette}{integer representing a divergent palette in the scale_color_brewer function}
+\item{alpha}{Opacity of the threshold lines.}
 
-\item{alpha}{opacity of lines representing thresholds}
+\item{signal_labels}{Optional character vector of length 2 with legend
+labels for the two latent distributions (reference level first).
+Defaults to the title-cased levels of \code{var_signal}.}
 
-\item{ttl}{plot's title}
+\item{group_labels}{Optional character vector of length 2 with panel
+titles for the levels of \code{var_group}. Defaults to its title-cased
+levels.}
 
-\item{group1_ttl}{label for the first group subplot}
+\item{facet_labels}{Optional character vector of length 2 with panel
+titles for the levels of \code{var_facet}. Defaults to its title-cased
+levels.}
 
-\item{group2_ttl}{label for the second group subplot}
+\item{ttl}{Plot title.}
 
-\item{filename}{if not NULL, the name of the png file to save the plot as}
-
-\item{path}{folder path to save the plot in}
-
-\item{width}{width of the saved plot - in pixels}
-
-\item{height}{height of the saved plot - in pixels}
+\item{x_label}{Label of the x (latent) axis.}
 }
 \value{
-a ggplot plot object
+A \link[patchwork:patchwork-package]{patchwork} object combining the
+panels.
 }
 \description{
-This function makes a Latent normal distributions plot for two or three categorical variables ordinal regression models.
+Plots the latent ("perceived signal") distributions implied by a
+cumulative link model fitted with \code{\link[ordinal:clm]{ordinal::clm()}} or \code{\link[ordinal:clmm]{ordinal::clmm()}},
+together with the estimated response thresholds (criteria), in the style
+of signal detection theory (SDT). One panel is drawn for every level of
+\code{var_group}, optionally split by a third variable (\code{var_facet}).
+}
+\details{
+The latent distribution follows from the model's link function: normal
+for \code{probit} (the classic SDT display), logistic for \code{logit}, Cauchy for
+\code{cauchit}, and Gumbel for \code{cloglog}/\code{loglog}. All latent distributions
+have unit scale (scale/disc effects are not supported). Models without
+some interaction terms are supported: terms the model does not contain
+are simply treated as zero.
+}
+\examples{
+\dontshow{if (requireNamespace("ordinal", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+fit <- ordinal::clm(value ~ target * time, data = sdt_ratings, link = "probit")
+SDT_distributions_plot(fit, var_signal = "target", var_group = "time")
+\dontshow{\}) # examplesIf}
+}
+\seealso{
+\code{\link[=bayesian_SDT_distribution_plot]{bayesian_SDT_distribution_plot()}} for \code{\link[brms:brm]{brms::brm()}} models, and
+\code{\link[=roc_plot]{roc_plot()}} for the corresponding ROC curves.
 }

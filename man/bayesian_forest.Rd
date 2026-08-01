@@ -2,44 +2,57 @@
 % Please edit documentation in R/bayesian_forest.R
 \name{bayesian_forest}
 \alias{bayesian_forest}
-\title{Forest plot for Bayesian random effects meta-analysis}
+\title{Forest plot for a Bayesian random-effects meta-analysis}
 \usage{
 bayesian_forest(
   b_meta_analysis,
+  author_var = "Author",
+  study_var = "Study",
   palette = 11,
+  effect_label = "Standardized Mean Difference",
   ttl = "",
-  hjust_ttl = 1,
-  filename = NULL,
-  path = getwd(),
-  width = 2450,
-  height = 1446
+  hjust_ttl = 1
 )
 }
 \arguments{
-\item{b_meta_analysis}{Bayesian random effects meta-analysis - a brms object}
+\item{b_meta_analysis}{A \code{brmsfit} random-effects meta-analysis with
+nested author/study grouping terms.}
 
-\item{palette}{integer representing a palette in the scale_color_brewer function}
+\item{author_var}{Name (string) of the higher-level grouping variable.}
 
-\item{ttl}{plot's title}
+\item{study_var}{Name (string) of the study-level grouping variable
+nested in \code{author_var}.}
 
-\item{hjust_ttl}{constant offset of plot title to keep in in the center}
+\item{palette}{Integer: number of colors drawn from the Spectral palette
+(see \code{\link[RColorBrewer:brewer.pal]{RColorBrewer::brewer.pal()}}) before interpolation.}
 
-\item{filename}{if not NULL, the name of the png file to save the plot as}
+\item{effect_label}{Label of the x axis (the summary measure).}
 
-\item{path}{folder path to save the plot in}
+\item{ttl}{Plot title.}
 
-\item{width}{width of the saved plot - in pixels}
-
-\item{height}{height of the saved plot - in pixels}
+\item{hjust_ttl}{Horizontal adjustment of the title.}
 }
 \value{
-a ggplot plot object
+A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
 }
 \description{
-This function makes a forest plot for Bayesian random effects meta-analyses. Code is heavily inspired by Harrer et al. online guide - https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/.
-Harrer, M., Cuijpers, P., Furukawa, T.A., & Ebert, D.D. (2021). Doing Meta-Analysis with R: A Hands-On Guide. Boca Raton, FL and London: Chapman & Hall/CRC Press. ISBN 978-0-367-61007-4.
+Draws a forest plot — posterior densities and intervals per study, plus
+the pooled effect — for a Bayesian random-effects meta-analysis fitted
+with \code{\link[brms:brm]{brms::brm()}}. The model is expected to contain nested grouping
+terms of the form \code{(1 | author/study)} (defaults: \code{Author}, \code{Study});
+densities are colored by the higher-level (author) grouping.
 }
 \details{
-Important - this function requires a 'Study' variable for individual studies and an 'Author' clustering variable of studies.
-Important - In the final plot studies are colored by their author.
+The layout is adapted from Harrer, Cuijpers, Furukawa, & Ebert (2021),
+\emph{Doing Meta-Analysis with R: A Hands-On Guide}
+(\url{https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/}).
+}
+\examples{
+\dontrun{
+# b_meta <- brms::brm(
+#   yi | se(sei) ~ 1 + (1 | Author / Study),
+#   data = meta_data
+# )
+bayesian_forest(b_meta)
+}
 }

@@ -2,54 +2,101 @@
 % Please edit documentation in R/bayesian_SDT_distribution_plot.R
 \name{bayesian_SDT_distribution_plot}
 \alias{bayesian_SDT_distribution_plot}
-\title{Plot of latent normal distributions for two or three 2-level categorical variables Bayesian ordinal probit regression models}
+\title{Latent SDT distributions of a Bayesian ordinal regression model}
 \usage{
 bayesian_SDT_distribution_plot(
   b_model,
-  var_signal = "target",
-  var_group = "time",
+  var_signal,
+  var_group,
   var_facet = NULL,
-  response = "value",
-  response_scale = c(1:7),
+  signal_labels = NULL,
+  group_labels = NULL,
+  facet_labels = NULL,
   palette = 9,
+  alpha = 0.6,
   plot_range = c(-11, 11),
-  ttl = "",
-  filename = NULL,
-  path = getwd(),
-  width = 2450,
-  height = 1446
+  ci = 0.9,
+  ndraws = NULL,
+  ttl = ""
 )
 }
 \arguments{
-\item{b_model}{Bayesian ordinal probit regression model - a brms object}
+\item{b_model}{A \code{brmsfit} cumulative regression model.}
 
-\item{var_signal}{variable analogous to the classic SDT signal, e.g. old/new}
+\item{var_signal}{Name (string) of the 2-level factor playing the role of
+the SDT signal, e.g. old/new or true/fake.}
 
-\item{var_group}{variable name of the co-variate, e.g. experimental group}
+\item{var_group}{Name (string) of a 2-level factor covariate, e.g.
+pre/post. One panel is drawn per level.}
 
-\item{var_facet}{variable to facet by}
+\item{var_facet}{Optional name (string) of a second 2-level factor
+covariate; panels are duplicated for each of its levels.}
 
-\item{response}{variable name of the response}
+\item{signal_labels}{Optional character vector of length 2 with legend
+labels for the two latent distributions (reference level first).
+Defaults to the title-cased levels of \code{var_signal}.}
 
-\item{response_scale}{integer vector of response scale levels, e.g 1 to 7}
+\item{group_labels}{Optional character vector of length 2 with panel
+subtitles. Defaults to the title-cased levels of \code{var_group}.}
 
-\item{palette}{integer representing a divergent palette in the scale_color_brewer function}
+\item{facet_labels}{Optional character vector of length 2 with panel
+titles for the levels of \code{var_facet}. Defaults to its title-cased
+levels.}
 
-\item{plot_range}{2-integer vector representing x-axis limits of the plot}
+\item{palette}{Integer index of a sequential palette passed to
+\code{\link[ggplot2:scale_fill_brewer]{ggplot2::scale_fill_brewer()}} for the threshold slabs.}
 
-\item{ttl}{plot's title}
+\item{alpha}{Opacity of the threshold slabs.}
 
-\item{filename}{if not NULL, the name of the png file to save the plot as}
+\item{plot_range}{Numeric vector of length 2: x-axis limits of the latent
+scale.}
 
-\item{path}{folder path to save the plot in}
+\item{ci}{Width of the curvewise credible band around each density curve
+(between 0 and 1).}
 
-\item{width}{width of the saved plot - in pixels}
+\item{ndraws}{Optional number of posterior draws used to compute the
+density bands. The default (\code{NULL}) uses all draws; a value such as
+\code{500} makes the plot considerably faster with little visual change.}
 
-\item{height}{height of the saved plot - in pixels}
+\item{ttl}{Plot title.}
 }
 \value{
-a ggplot plot object
+A \link[patchwork:patchwork-package]{patchwork} object combining the
+panels; it can be printed, modified with \code{&}, or saved with
+\code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.
 }
 \description{
-This function makes a latent distributions plot for two or three 2-level categorical variables Bayesian ordinal regression models.
+Plots the latent ("perceived signal") distributions implied by a Bayesian
+cumulative regression model, together with the posterior distributions of
+the response thresholds (criteria), in the style of signal detection
+theory (SDT). One panel is drawn for every level of \code{var_group},
+optionally split by a third variable (\code{var_facet}).
+}
+\details{
+The model is expected to be a \code{\link[brms:brm]{brms::brm()}} fit with a cumulative family.
+The latent distribution follows from the model's link function: normal
+for \code{probit} (the classic SDT display), logistic for \code{logit}, Cauchy for
+\code{cauchit}, and Gumbel for \code{cloglog}. When the discrimination parameter
+\code{disc} is modeled (unequal-variance SDT), the posterior of each
+distribution's scale is used; otherwise all latent distributions have
+unit scale. Models without some interaction terms are supported: terms
+the model does not contain are simply treated as zero.
+}
+\examples{
+\dontrun{
+# b_fit <- brms::brm(
+#   brms::bf(value ~ target * time, disc ~ target * time),
+#   family = brms::cumulative("probit"),
+#   data = sdt_ratings
+# )
+bayesian_SDT_distribution_plot(
+  b_fit,
+  var_signal = "target", var_group = "time",
+  plot_range = c(-4, 6), ndraws = 500
+)
+}
+}
+\seealso{
+\code{\link[=SDT_distributions_plot]{SDT_distributions_plot()}} for \code{ordinal::clm()} models, and
+\code{\link[=bayesian_roc_plot]{bayesian_roc_plot()}} for the corresponding ROC curves.
 }
