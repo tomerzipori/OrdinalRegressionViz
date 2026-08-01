@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/tomerzipori/OrdinalRegressionViz/blob/v0.2.0/inst/CITATION)
+[`inst/CITATION`](https://github.com/tomerzipori/OrdinalRegressionViz/blob/master/inst/CITATION)
 
 Zipori, T. (2026). OrdinalRegressionViz: Visualize Ordinal Probit
 Regression Models with ggplot2. R package version 0.2.0.
