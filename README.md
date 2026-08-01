@@ -3,7 +3,7 @@
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/tomerzipori/OrdinalRegressionViz/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tomerzipori/OrdinalRegressionViz/actions/workflows/R-CMD-check.yaml)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![GitHub R package version](https://img.shields.io/github/r-package/v/tomerzipori/OrdinalRegressionViz)](https://github.com/tomerzipori/OrdinalRegressionViz/blob/main/DESCRIPTION)
+[![GitHub R package version](https://img.shields.io/github/r-package/v/tomerzipori/OrdinalRegressionViz)](https://github.com/tomerzipori/OrdinalRegressionViz/blob/master/DESCRIPTION)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
 
