@@ -52,3 +52,6 @@ rsconnect/
 inst/doc
 /doc/
 /Meta/
+
+# macOS
+.DS_Store
