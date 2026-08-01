@@ -1,0 +1,152 @@
+# OrdinalRegressionViz
+
+## Overview
+
+OrdinalRegressionViz provides publication-ready `ggplot2` visualizations
+for ordinal (cumulative) regression models, framed in signal detection
+theory (SDT) terms. It is aimed at researchers who analyze rating-scale
+data with ordinal probit (or other cumulative link) models — for
+example, perceived truth ratings of true and fake news headlines — using
+the `ordinal` or `brms` packages.
+
+The package draws:
+
+- **ROC curves** with confidence or credible bands:
+  [`roc_plot()`](https://tomerzipori.github.io/OrdinalRegressionViz/reference/roc_plot.md)
+  for
+  [`ordinal::clm()`](https://rdrr.io/pkg/ordinal/man/clm.html)/`clmm()`
+  models,
+  [`bayesian_roc_plot()`](https://tomerzipori.github.io/OrdinalRegressionViz/reference/bayesian_roc_plot.md)
+  for `brms` models.
+- **Latent SDT distributions** with response thresholds (criteria):
+  [`SDT_distributions_plot()`](https://tomerzipori.github.io/OrdinalRegressionViz/reference/SDT_distributions_plot.md)
+  and
+  [`bayesian_SDT_distribution_plot()`](https://tomerzipori.github.io/OrdinalRegressionViz/reference/bayesian_SDT_distribution_plot.md).
+  The Bayesian version supports unequal-variance models through the
+  `disc` distributional parameter.
+- **Grouped posterior predictive checks** for ordinal `brms` models:
+  [`ordinal_model_ppd_check()`](https://tomerzipori.github.io/OrdinalRegressionViz/reference/ordinal_model_ppd_check.md).
+- **Forest plots** for Bayesian random-effects meta-analyses:
+  [`bayesian_forest()`](https://tomerzipori.github.io/OrdinalRegressionViz/reference/bayesian_forest.md).
+
+It also computes the numbers behind the plots:
+[`sdt_indices()`](https://tomerzipori.github.io/OrdinalRegressionViz/reference/sdt_indices.md)
+returns tidy signal detection indices (d’, the signal/noise scale ratio,
+criteria, and AUC) per design cell — with full posterior uncertainty for
+`brms` models.
+
+All functions return `ggplot`/`patchwork` objects that you can modify
+and save with
+[`ggplot2::ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html).
+The visualizations accompany Simchon, Zipori, Teitelbaum, Lewandowsky,
+and van der Linden (2026); see [Citation](#citation) below.
+
+## Installation
+
+``` r
+
+# install.packages("remotes")
+remotes::install_github("tomerzipori/OrdinalRegressionViz")
+```
+
+The model-fitting packages are suggested, not required: install
+`ordinal` for the frequentist plot functions and `brms` for the Bayesian
+ones, depending on which models you fit.
+
+## Quick start
+
+The packaged dataset `sdt_ratings` contains simulated 6-point
+perceived-truth ratings of true and fake headlines, before and after an
+inoculation intervention. Fit a cumulative probit model with
+[`ordinal::clm()`](https://rdrr.io/pkg/ordinal/man/clm.html) and plot
+it:
+
+``` r
+
+library(OrdinalRegressionViz)
+
+fit <- ordinal::clm(
+  value ~ target * time,
+  data = subset(sdt_ratings, condition == "control"),
+  link = "probit"
+)
+
+# ROC curve: one curve per level of `time`, points at the response thresholds;
+# `show_empirical` overlays the observed rates as a fit check
+roc_plot(fit, var_signal = "target", var_group = "time", show_empirical = TRUE)
+
+# Latent distributions and thresholds, one panel per level of `time`
+SDT_distributions_plot(fit, var_signal = "target", var_group = "time")
+
+# The corresponding SDT indices: d', sigma ratio, criteria, AUC
+sdt_indices(fit, var_signal = "target", var_group = "time")
+```
+
+The first level of `var_signal` is treated as the signal class, and the
+hit rate is the probability of a low response category given signal —
+here, rating a fake headline (`target = "fake"`) as fake (low perceived
+truth).
+
+## Bayesian example
+
+The Bayesian functions expect a `brms` cumulative model. An
+unequal-variance SDT model adds a `disc` (discrimination) part. Note:
+sampling takes a few minutes.
+
+``` r
+
+b_fit <- brms::brm(
+  brms::bf(value ~ target * time, disc ~ target * time),
+  family = brms::cumulative("probit"),
+  data = subset(sdt_ratings, condition == "control")
+)
+
+bayesian_roc_plot(b_fit, var_signal = "target", var_group = "time")
+
+bayesian_SDT_distribution_plot(
+  b_fit,
+  var_signal = "target", var_group = "time",
+  plot_range = c(-4, 6), ndraws = 500
+)
+
+ordinal_model_ppd_check(b_fit, group_vars = c("target", "time"))
+```
+
+## Gallery
+
+### ROC curve
+
+![ROC curves with confidence bands, one curve per time
+point](reference/figures/roc-example.png)
+
+### Latent SDT distributions
+
+![Latent signal and noise distributions with response
+thresholds](reference/figures/sdt-distributions-example.png)
+
+### Bayesian random-effects meta-analysis
+
+![Forest plot of a Bayesian random-effects
+meta-analysis](reference/figures/forest-example.png)
+
+## Citation
+
+To cite the package, run `citation("OrdinalRegressionViz")` in R, or
+use:
+
+> Zipori, T. (2026). *OrdinalRegressionViz: Visualize Ordinal Probit
+> Regression Models with ggplot2*. R package version 0.2.0.
+> <https://github.com/tomerzipori/OrdinalRegressionViz>
+
+The visualizations accompany:
+
+> Simchon, A., Zipori, T., Teitelbaum, L., Lewandowsky, S., & van der
+> Linden, S. (2026). A signal detection theory meta-analysis of
+> psychological inoculation against misinformation. *Current Opinion in
+> Psychology*, *67*, 102194.
+> <https://doi.org/10.1016/j.copsyc.2025.102194>
+
+## License
+
+MIT. See
+[LICENSE.md](https://tomerzipori.github.io/OrdinalRegressionViz/LICENSE.md).
