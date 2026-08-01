@@ -3,6 +3,7 @@
 ^\.github$
 ^_pkgdown\.yml$
 ^docs$
+^dev$
 ^data-raw$
 ^LICENSE\.md$
 ^tests/testthat/fixtures$
